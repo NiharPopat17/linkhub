@@ -1,0 +1,14 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<h1>Project Title : {{project.title}}</h1>
+<p>Description : {{ project.description }}</p>
+<p>Vote Ratio: {{project.vote_ratio}}</p>
+<p>Vote Total: {{project.vote_total}}</p>
+<p>Created: {{project.created}}</p>
+<p>Source Link: {{project.source_link}}</p>
+<p>Demo Link: {{project.demo_link}}</p>
+<p>Tags: {% for tag in project.tags.all %}{{ tag.name }} {% endfor %}</p>
+
+{% endblock %}
