@@ -1,0 +1,32 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+
+<div class="auth" style="height:auto; min-height:100vh;">
+    <!-- Main Section -->
+    <main class="formPage my-xl">
+        <div class="content-box">
+            <div class="formWrapper">
+                <a href="{% url 'account' %}"
+                    style="display:inline-flex;align-items:center;justify-content:center;width:4rem;height:4rem;border-radius:50%;background:#94a69e;color:#fff;font-size:2rem;font-weight:bold;text-decoration:none;margin-bottom:1rem;">&lsaquo;</a>
+                <br>
+
+                <form class="form" method="POST" action="">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                    <div class="form__field">
+                        <label for="formInput#text"> {{field.label}}</label>
+                        {{field}}
+                    </div>
+                    {% endfor %}
+
+                    <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}
