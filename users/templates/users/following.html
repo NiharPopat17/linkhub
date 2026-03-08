@@ -13,9 +13,31 @@
     </div>
 
     {% if following %}
-      <div style="display: flex; flex-direction: column; gap: 16px;">
+
+      <!-- Search bar -->
+      <div class="hero-section__search" style="margin-bottom: 32px;">
+        <div class="form">
+          <div class="form__field">
+            <label for="followingSearch">Search Following</label>
+            <input
+              class="input input--text"
+              id="followingSearch"
+              type="text"
+              placeholder="Search by name or username..."
+              oninput="filterFollowing(this.value)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div id="followingList" style="display: flex; flex-direction: column; gap: 16px;">
         {% for person in following %}
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 24px 32px; background: #fff; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,0.07);">
+        <div
+          class="following-card"
+          data-name="{{ person.name|lower }}"
+          data-username="{{ person.username|lower }}"
+          style="display: flex; align-items: center; justify-content: space-between; padding: 24px 32px; background: #fff; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,0.07);"
+        >
           <a href="{% url 'user-profile' person.id %}" style="display: flex; align-items: center; gap: 22px; text-decoration: none; color: inherit; flex: 1; min-width: 0;">
             <img
               src="{{ person.imageURL }}"
@@ -49,6 +71,13 @@
         {% endfor %}
       </div>
 
+      <!-- No results message (hidden by default) -->
+      <div id="noResults" style="display: none; text-align: center; padding: 50px 20px; background: #fff; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,0.07);">
+        <div style="font-size: 2.5rem; margin-bottom: 14px;">🔍</div>
+        <h3 style="margin: 0 0 8px; color: #333; font-size: 1.2rem;">No results found</h3>
+        <p style="color: #aaa; margin: 0; font-size: 0.95rem;">Try a different name or username.</p>
+      </div>
+
     {% else %}
       <div style="text-align: center; padding: 80px 20px; background: #fff; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,0.07);">
         <div style="font-size: 4rem; margin-bottom: 20px;">👥</div>
@@ -60,5 +89,23 @@
 
   </div>
 </main>
+
+<script>
+  function filterFollowing(query) {
+    const q = query.trim().toLowerCase();
+    const cards = document.querySelectorAll('.following-card');
+    let visibleCount = 0;
+
+    cards.forEach(function(card) {
+      const name = card.dataset.name || '';
+      const username = card.dataset.username || '';
+      const matches = name.includes(q) || username.includes(q);
+      card.style.display = matches ? 'flex' : 'none';
+      if (matches) visibleCount++;
+    });
+
+    document.getElementById('noResults').style.display = visibleCount === 0 ? 'block' : 'none';
+  }
+</script>
 
 {% endblock %}
