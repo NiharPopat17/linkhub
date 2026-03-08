@@ -1,32 +1,58 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import Project
-from .forms import ProjectForm
+from django.db.models import Q
+from .models import Project, Tag
+from .forms import ProjectForm, ReviewForm
 from django.contrib.auth.decorators import login_required
+from .utils import searchProjects, paginateProjects
+from django.contrib import messages
 
 def projects(request):
-    projects = Project.objects.all()
-    context = {'projects': projects}
+    projects, search_query = searchProjects(request)
+    custom_range, projects = paginateProjects(request, projects, 6)
+    context = {'projects': projects, 'search_query': search_query, 'custom_range': custom_range}
     return render(request, 'projects/projects.html', context)
 
 def project(request,pk):
     projectObj = Project.objects.get(id=pk)
-    return render(request, 'projects/single-project.html', {'project': projectObj})
+    form = ReviewForm()
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            messages.warning(request, 'You must be logged in to leave a review.')
+            return redirect('login')
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            # Prevent duplicate reviews
+            if request.user.profile.id in projectObj.reviewers:
+                messages.warning(request, 'You have already reviewed this project!')
+                return redirect('project', pk=projectObj.id)
+            review = form.save(commit=False)
+            review.owner = request.user.profile
+            review.project = projectObj
+            review.save()
+            projectObj.getVoteCount()
+            messages.success(request, 'Your review was added successfully!')
+            return redirect('project', pk=projectObj.id)    
+    return render(request, 'projects/single-project.html', {'project': projectObj, 'form': form})
 
 @login_required(login_url='login')
 def createProject(request):
     profile = request.user.profile  
     form = ProjectForm()
     if request.method == 'POST':
+        newtags = request.POST.get('newtags').replace(',',  " ").split()
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
             project = form.save(commit=False)
             project.owner = profile
             project.save()
+            for tag in newtags:
+                tag, created = Tag.objects.get_or_create(name=tag)
+                project.tags.add(tag)   
             return redirect('account')
 
-    Context = {'form': form}
-    return render(request, 'projects/project_form.html', Context)
+    context = {'form': form}
+    return render(request, 'projects/project_form.html', context)
 
 @login_required(login_url='login')
 def updateProject(request, pk):
@@ -34,13 +60,18 @@ def updateProject(request, pk):
     project = profile.project_set.get(id=pk)
     form = ProjectForm(instance=project)
     if request.method == 'POST':
+        newtags = request.POST.get('newtags').replace(',',  " ").split()
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
-            form.save()
+            project = form.save(commit=False)
+            project.save()
+            for tag in newtags:
+                tag, created = Tag.objects.get_or_create(name=tag)
+                project.tags.add(tag)   
             return redirect('account')
 
-    Context = {'form': form}
-    return render(request, 'projects/project_form.html', Context)
+    context = {'form': form, 'project': project}
+    return render(request, 'projects/project_form.html', context)
 
 @login_required(login_url='login')
 def deleteProject(request, pk):

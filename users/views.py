@@ -1,35 +1,35 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate,login,logout
-from .models import Profile
+from .models import Profile,Skill,Message
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .forms import CustomUserCreationForm
 from .forms import ProfileForm
 from .forms import SkillForm
+from .forms import MessageForm
+from django.db.models import Q
+from .utils import searchProfiles, paginateProfiles
 
 def loginUser(request):
-    page = 'login'
     if request.user.is_authenticated:
         return redirect('profiles')
     if request.method == 'POST':
-        username = request.POST.get('username')
+        username = request.POST.get('username').lower()
         password = request.POST.get('password')
 
         try:
             user = User.objects.get(username=username)
-            if user.check_password(password):
-                login(request,user)
-                return redirect('profiles')
-        except:
-            messages.error(request,"Username does not exist")
+        except User.DoesNotExist:
+            messages.error(request, "Username does not exist")
+            return render(request, 'users/login_register.html')
 
-        user = authenticate(request,username=username,password=password)       
+        user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request,user)
-            return redirect('profiles')
+            login(request, user)
+            return redirect(request.GET.get('next', 'profiles'))
         else:
-            messages.error(request,"Username or Password Invalid")
+            messages.error(request, "Password is incorrect")
     return render(request, 'users/login_register.html')
 
 def logoutUser(request):
@@ -57,11 +57,15 @@ def registerUser(request):
     context = {'page': page, 'form': form}
     return render(request, 'users/login_register.html', context)
 
-
-# Create your views here.
 def profiles(request):
-    profiles = Profile.objects.all()
-    context = {'profiles': profiles}
+    profiles, search_query = searchProfiles(request)
+
+    if request.user.is_authenticated:
+        profiles = profiles.exclude(user=request.user)
+
+    custom_range, profiles = paginateProfiles(request, profiles, 6)
+    context = {'profiles': profiles, 'search_query': search_query,
+               'custom_range': custom_range}
     return render(request, 'users/profiles.html', context)
 
 def userProfile(request,pk):
@@ -134,3 +138,48 @@ def deleteSkill(request, pk):
 
     context = {'object': skill}
     return render(request, 'delete_template.html', context)
+
+
+@login_required(login_url='login')
+def inbox(request):
+    profile = request.user.profile
+    messageRequests = profile.messages.all()
+    unreadCount = messageRequests.filter(is_read=False).count()
+    context = {'messageRequests': messageRequests, 'unreadCount': unreadCount}
+    return render(request, 'users/inbox.html', context)
+
+@login_required(login_url='login')
+def viewMessage(request, pk):
+    profile = request.user.profile
+    message = profile.messages.get(id=pk)
+    if message.is_read == False:
+        message.is_read = True
+        message.save()
+    context = {'message': message}
+    return render(request, 'users/message.html', context)
+
+def createMessage(request,pk):
+    recipient = Profile.objects.get(id=pk)
+    form = MessageForm()
+    try:
+        sender = request.user.profile
+    except:
+        sender = None
+
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = sender
+            message.recipient = recipient
+
+            if sender:
+                message.name = sender.name
+                message.email = sender.email
+            message.save()
+
+            messages.success(request, 'Your message was successfully sent!')
+            return redirect('user-profile', pk=recipient.id)
+
+    context = {'recipient': recipient, 'form': form}
+    return render(request, 'users/message_form.html', context)

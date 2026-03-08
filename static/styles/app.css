@@ -534,6 +534,51 @@ img {
   text-align: justify;
 }
 
+/* ---- Project Tags (horizontal scrollable row) ---- */
+.project__tags {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 0.5rem;
+  padding-bottom: 0.4rem;
+  margin-top: 0.8rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-light) transparent;
+}
+
+.project__tags::-webkit-scrollbar {
+  height: 3px;
+}
+
+.project__tags::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.project__tags::-webkit-scrollbar-thumb {
+  background: var(--color-light);
+  border-radius: 3px;
+}
+
+/* Smaller, compact tags inside project cards */
+.project__tags .tag {
+  padding: 0.3rem 0.9rem;
+  font-size: 1rem;
+  border-radius: 3rem;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.project__tags .tag:not(:last-child) {
+  margin-right: 0;
+  margin-bottom: 0;
+}
+
+.project__tags .tag > small {
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
 /*========== Comments ==========*/
 
 .comments {
@@ -869,3 +914,4 @@ img {
 
   z-index: 99999;
 }
+

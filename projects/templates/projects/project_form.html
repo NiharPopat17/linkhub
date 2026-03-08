@@ -1,27 +1,84 @@
 {% extends 'main.html' %}
-
 {% block content %}
-<div class="auth" style="height:auto; min-height:100vh;">
-        <main class="formPage my-xl">
-                <div class="content-box">
-                        <div class="formWrapper">
-                                <a href="{% url 'account' %}"
-                                        style="display:inline-flex;align-items:center;justify-content:center;width:4rem;height:4rem;border-radius:50%;background:#94a69e;color:#fff;font-size:2rem;font-weight:bold;text-decoration:none;margin-bottom:1rem;">&lsaquo;</a>
-                                <br>
 
-                                <form class="form" method="POST" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        {% for field in form %}
-                                        <!-- Input:Text -->
-                                        <div class="form__field">
-                                                <label for="formInput#text">{{field.label}}</label>
-                                                {{field}}
-                                        </div>
-                                        {% endfor %}
-                                        <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
-                                </form>
-                        </div>
+
+
+<!-- Main Section -->
+<main class="formPage my-xl">
+    <div class="content-box">
+        <div class="formWrapper">
+            <a class="backButton" href="{% url 'account' %}"><i class="im im-angle-left"></i></a>
+            <br>
+
+            <form class="form" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {% for field in form %}
+                <!-- Input:Text -->
+                <div class="form__field">
+                    <label for="formInput#text">{{field.label}}</label>
+                    {{field}}
                 </div>
-        </main>
-</div>
-{% endblock content %}
+                {% endfor %}
+
+                <div class="form__field">
+                    {% for tag in project.tags.all %}
+                    <div class="project-tag tag tag--pill tag--main" data-tag="{{tag.id}}"
+                        data-project="{{project.id}}">{{tag.name}} &#215;</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form__field">
+                    <label for="formInput#text">Tags</label>
+                    <textarea class="input" name="newtags" placeholder="Add tags here..."></textarea>
+                </div>
+                <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Helper to get cookie value (needed for CSRF token)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(cookie => {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+                }
+            });
+        }
+        return cookieValue;
+    }
+
+    let tags = document.getElementsByClassName('project-tag')
+
+    for (let i = 0; tags.length > i; i++) {
+        tags[i].addEventListener('click', (e) => {
+            let tagEl = e.currentTarget
+            let tagId = tagEl.dataset.tag
+            let projectId = tagEl.dataset.project
+
+            console.log('TAG ID:', tagId, 'PROJECT ID:', projectId)
+
+            fetch('http://127.0.0.1:8000/api/remove-tag/', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ 'projectId': projectId, 'tagId': tagId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Removed:', data)
+                    tagEl.remove()
+                })
+                .catch(err => console.error('Error:', err))
+        })
+    }
+</script>
+
+{% endblock %}
