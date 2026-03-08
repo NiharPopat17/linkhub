@@ -17,6 +17,18 @@
                     {% for field in form %}
                     <div class="form__field">
                         <label for="formInput#text">{{field.label}}</label>
+                        {% if field.html_name == 'profile_image' %}
+                            {% if form.instance.profile_image %}
+                            <div style="margin-bottom: 10px;">
+                                <img
+                                    src="{{ form.instance.imageURL }}"
+                                    alt="Current profile picture"
+                                    style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #94a69e;"
+                                />
+                                <p style="font-size: 0.8rem; color: #888; margin: 6px 0 0;">Choose a new image to replace this one.</p>
+                            </div>
+                            {% endif %}
+                        {% endif %}
                         {{field}}
                     </div>
                     {% endfor %}

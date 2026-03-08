@@ -72,7 +72,17 @@ def userProfile(request,pk):
     profile = Profile.objects.get(id=pk)
     topSkills = profile.skill_set.exclude(description__exact="")
     otherSkills = profile.skill_set.filter(description="")
-    context = {'profile': profile, 'topSkills': topSkills, 'otherSkills': otherSkills}  
+
+    is_following = False
+    if request.user.is_authenticated:
+        is_following = request.user.profile.following.filter(id=profile.id).exists()
+
+    context = {
+        'profile': profile,
+        'topSkills': topSkills,
+        'otherSkills': otherSkills,
+        'is_following': is_following,
+    }
     return render(request, 'users/user-profile.html', context)
 
 @login_required(login_url='login')
@@ -80,7 +90,13 @@ def userAccount(request):
     profile = request.user.profile
     skills = profile.skill_set.all()
     projects = profile.project_set.all()
-    context = {'profile': profile, 'skills': skills, 'projects': projects} 
+    following_count = profile.following.count()
+    context = {
+        'profile': profile,
+        'skills': skills,
+        'projects': projects,
+        'following_count': following_count,
+    }
     return render(request, 'users/account.html',context)
 
 @login_required(login_url='login')
@@ -157,6 +173,33 @@ def viewMessage(request, pk):
         message.save()
     context = {'message': message}
     return render(request, 'users/message.html', context)
+
+@login_required(login_url='login')
+def followUser(request, pk):
+    target_profile = Profile.objects.get(id=pk)
+    my_profile = request.user.profile
+
+    if target_profile == my_profile:
+        messages.error(request, "You cannot follow yourself.")
+        return redirect('user-profile', pk=pk)
+
+    if my_profile.following.filter(id=target_profile.id).exists():
+        my_profile.following.remove(target_profile)
+        messages.info(request, f"You unfollowed {target_profile.name}.")
+    else:
+        my_profile.following.add(target_profile)
+        messages.success(request, f"You are now following {target_profile.name}.")
+
+    return redirect('user-profile', pk=pk)
+
+
+@login_required(login_url='login')
+def followingList(request):
+    profile = request.user.profile
+    following = profile.following.all()
+    context = {'following': following}
+    return render(request, 'users/following.html', context)
+
 
 def createMessage(request,pk):
     recipient = Profile.objects.get(id=pk)

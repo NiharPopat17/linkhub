@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django import forms
 from .models import Profile,Skill,Message
 
 class CustomUserCreationForm(UserCreationForm):
@@ -22,11 +23,14 @@ class ProfileForm(ModelForm):
     class Meta:
         model = Profile
         fields = ['name', 'email', 'username', 'short_intro', 'bio', 'profile_image', 'social_github', 'social_twitter', 'social_linkedin', 'social_youtube', 'social_website']
+
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
-
         for name, field in self.fields.items():
             field.widget.attrs.update({'class': 'input'})
+        # Replace the default ClearableFileInput so uploading a new image
+        # immediately overwrites the old one — no "Clear" checkbox needed.
+        self.fields['profile_image'].widget = forms.FileInput(attrs={'class': 'input'})
 
 class SkillForm(ModelForm):
     class Meta:

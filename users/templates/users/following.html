@@ -1,0 +1,64 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<main class="my-md">
+  <div class="container" style="max-width: 780px; margin: 0 auto;">
+
+    <div style="display: flex; align-items: center; margin-bottom: 36px; gap: 16px;">
+      <a href="{% url 'account' %}"
+        style="display:inline-flex;align-items:center;justify-content:center;width:4rem;height:4rem;border-radius:50%;background:#94a69e;color:#fff;font-size:2rem;font-weight:bold;text-decoration:none;">&lsaquo;</a>
+      <h2 style="margin: 0; font-size: 1.8rem; font-weight: 700;">Following</h2>
+    </div>
+
+    {% if following %}
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        {% for person in following %}
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 24px 32px; background: #fff; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,0.07);">
+          <a href="{% url 'user-profile' person.id %}" style="display: flex; align-items: center; gap: 22px; text-decoration: none; color: inherit; flex: 1; min-width: 0;">
+            <img
+              src="{{ person.imageURL }}"
+              alt="{{ person.name }}"
+              style="width: 86px; height: 86px; border-radius: 50%; object-fit: cover; border: 3px solid #e0e0e0; flex-shrink: 0;"
+            />
+            <div style="min-width: 0;">
+              <p style="margin: 0; font-weight: 700; font-size: 1.25rem; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                {{ person.username }}
+              </p>
+              {% if person.name %}
+              <p style="margin: 5px 0 0; font-size: 1.05rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                {{ person.name }}
+              </p>
+              {% endif %}
+              {% if person.short_intro %}
+              <p style="margin: 5px 0 0; font-size: 0.95rem; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                {{ person.short_intro }}
+              </p>
+              {% endif %}
+            </div>
+          </a>
+          <a
+            href="{% url 'follow-user' person.id %}"
+            style="margin-left: 24px; flex-shrink: 0; padding: 12px 28px; border-radius: 10px; font-size: 1rem; font-weight: 600; background: #f0f0f0; color: #333; text-decoration: none; transition: background 0.2s;"
+            onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f0f0f0'"
+          >
+            Unfollow
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <div style="text-align: center; padding: 80px 20px; background: #fff; border-radius: 16px; box-shadow: 0 2px 14px rgba(0,0,0,0.07);">
+        <div style="font-size: 4rem; margin-bottom: 20px;">👥</div>
+        <h3 style="margin: 0 0 10px; color: #333; font-size: 1.4rem;">Not following anyone yet</h3>
+        <p style="color: #888; margin: 0 0 28px; font-size: 1rem;">Discover developers and follow them to keep up with their work.</p>
+        <a href="{% url 'profiles' %}" class="btn btn--sub btn--lg">Browse Developers</a>
+      </div>
+    {% endif %}
+
+  </div>
+</main>
+
+{% endblock %}

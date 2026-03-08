@@ -47,8 +47,13 @@
                             </li>
                             {% endif %}
                         </ul>
-                        {% if request.user.profile.id != profile.id %}
-                        <a href="{% url 'create-message' profile.id %}" class="btn btn--sub btn--lg">Send Message </a>
+                        {% if request.user.is_authenticated and request.user.profile.id != profile.id %}
+                        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+                            <a href="{% url 'follow-user' profile.id %}" class="btn btn--lg {% if is_following %}btn--main{% else %}btn--sub{% endif %}">
+                                {% if is_following %}Unfollow{% else %}Follow{% endif %}
+                            </a>
+                            <a href="{% url 'create-message' profile.id %}" class="btn btn--sub btn--lg">Send Message</a>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
