@@ -6,7 +6,8 @@
 <main class="messagePage my-xl">
   <div class="content-box">
     <div class="message">
-      <a class="backButton" href="{% url 'inbox' %}"><i class="im im-angle-left"></i></a>
+      <a href="{% url 'inbox' %}"
+        style="display:inline-flex;align-items:center;justify-content:center;width:4rem;height:4rem;border-radius:50%;background:#94a69e;color:#fff;font-size:2rem;font-weight:bold;text-decoration:none;margin-bottom:1rem;">&lsaquo;</a>
       <h2 class="message__subject">{{message.subject}}</h4>
         {% if message.sender %}
         <a href="{% url 'user-profile' message.sender.id  %}" class="message__author">{{message.name}}</a>
