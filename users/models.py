@@ -19,6 +19,9 @@ class Profile(models.Model):
     social_youtube = models.CharField(max_length=200, blank=True, null=True)
     social_website = models.CharField(max_length=200, blank=True, null=True)
     following = models.ManyToManyField('self', symmetrical=False, blank=True, related_name='followers')
+    embedding = models.JSONField(null=True, blank=True)
+    views = models.IntegerField(default=0)
+    bookmarks = models.ManyToManyField('projects.Project', blank=True, related_name='bookmarked_by')
     created = models.DateTimeField(auto_now_add=True)
     id = models.UUIDField(default=uuid.uuid4, unique=True,primary_key=True, editable=False)
     
@@ -48,9 +51,23 @@ class Skill(models.Model):
     def __str__(self):
         return str(self.name)
 
+class Conversation(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    participants = models.ManyToManyField(Profile, related_name='conversations')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated']
+
+    def __str__(self):
+        return str(self.id)
+
+
 class Message(models.Model):
     sender = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True)
     recipient = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name="messages")
+    conversation = models.ForeignKey('Conversation', null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=200, null=True, blank=True)
     email = models.EmailField(max_length=200, null=True, blank=True)
     subject = models.CharField(max_length=200, null=True, blank=True)

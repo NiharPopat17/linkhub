@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Profile, Skill, Message
+from .models import Profile, Skill, Message, Conversation
 
-# Register your models here.
-admin.site.register(Profile)    
-admin.site.register(Skill)    
-admin.site.register(Message)    
+admin.site.register(Profile)
+admin.site.register(Skill)
+admin.site.register(Message)
+admin.site.register(Conversation)
