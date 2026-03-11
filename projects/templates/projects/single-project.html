@@ -45,6 +45,7 @@
                     <h5 class="project--rating">
                         {{project.vote_ratio}}% Positive Feedback ({{project.vote_total}}
                         Vote{{project.vote_total|pluralize:"s"}})
+                        {% if show_views %}| {{ project.views }} View{{ project.views|pluralize:"s" }}{% endif %}
                     </h5>
 
                     {% if request.user.profile.id in project.reviewers %}

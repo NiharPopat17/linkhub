@@ -10,6 +10,7 @@ from .forms import SkillForm
 from .forms import MessageForm
 from django.db.models import Q
 from .utils import searchProfiles, paginateProfiles
+from django.db.models import F
 
 def loginUser(request):
     if request.user.is_authenticated:
@@ -70,6 +71,15 @@ def profiles(request):
 
 def userProfile(request,pk):
     profile = Profile.objects.get(id=pk)
+    is_own_profile = request.user.is_authenticated and str(request.user.profile.id) == str(pk)
+    if not is_own_profile:
+        viewed_profiles = request.session.get('viewed_profiles', [])
+        if str(pk) not in viewed_profiles:
+            Profile.objects.filter(pk=pk).update(views=F('views') + 1)
+            viewed_profiles.append(str(pk))
+            request.session['viewed_profiles'] = viewed_profiles
+        profile.refresh_from_db()
+    show_views = not is_own_profile
     topSkills = profile.skill_set.exclude(description__exact="")
     otherSkills = profile.skill_set.filter(description="")
 
@@ -82,6 +92,7 @@ def userProfile(request,pk):
         'topSkills': topSkills,
         'otherSkills': otherSkills,
         'is_following': is_following,
+        'show_views': show_views,
     }
     return render(request, 'users/user-profile.html', context)
 

@@ -42,6 +42,11 @@
                                     <span style="font-weight: bold;">{{project.vote_ratio}}%</span> Positive
                                     Feedback ({{project.vote_total}}) Vote{{project.vote_total|pluralize:"s"}}
                                 </p>
+                                {% if not request.user.is_authenticated or project.owner != request.user.profile %}
+                                <p class="project--views">
+                                    <small>{{ project.views }} View{{ project.views|pluralize:"s" }}</small>
+                                </p>
+                                {% endif %}
                                 <div class="project__tags">
                                     {% for tag in project.tags.all %}
                                     <span class="tag tag--pill tag--main">

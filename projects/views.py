@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.db.models import Q
+from django.db.models import Q, F
 from .models import Project, Tag
 from .forms import ProjectForm, ReviewForm
 from django.contrib.auth.decorators import login_required
@@ -15,6 +15,15 @@ def projects(request):
 
 def project(request,pk):
     projectObj = Project.objects.get(id=pk)
+    is_owner = request.user.is_authenticated and request.user.profile == projectObj.owner
+    if not is_owner:
+        viewed_projects = request.session.get('viewed_projects', [])
+        if str(pk) not in viewed_projects:
+            Project.objects.filter(pk=pk).update(views=F('views') + 1)
+            viewed_projects.append(str(pk))
+            request.session['viewed_projects'] = viewed_projects
+        projectObj.refresh_from_db()
+    show_views = not is_owner
     form = ReviewForm()
     if request.method == 'POST':
         if not request.user.is_authenticated:
@@ -33,7 +42,7 @@ def project(request,pk):
             projectObj.getVoteCount()
             messages.success(request, 'Your review was added successfully!')
             return redirect('project', pk=projectObj.id)    
-    return render(request, 'projects/single-project.html', {'project': projectObj, 'form': form})
+    return render(request, 'projects/single-project.html', {'project': projectObj, 'form': form, 'show_views': show_views})
 
 @login_required(login_url='login')
 def createProject(request):

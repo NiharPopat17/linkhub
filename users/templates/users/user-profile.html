@@ -12,6 +12,9 @@
                         <img class="avatar avatar--xl" src="{{ profile.imageURL }}" />
                         <h2 class="dev__name">{{profile.name}}</h2>
                         <p class="dev__title">{{profile.short_intro}}</p>
+                        {% if show_views %}
+                        <p class="dev__location">{{ profile.views }} profile view{{ profile.views|pluralize:"s" }}</p>
+                        {% endif %}
                         <ul class="dev__social">
 
                             {% if profile.social_github %}
