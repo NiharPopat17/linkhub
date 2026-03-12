@@ -35,7 +35,18 @@
                 <img class="singleProject__preview" src="{{ project.imageURL }}" alt="portfolio thumbnail" />
                 <a href="{% url 'user-profile' project.owner.id  %}"
                     class="singleProject__developer">{{project.owner.name}}</a>
-                <h2 class="singleProject__title">{{project.title}}</h2>
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                    <h2 class="singleProject__title" style="margin:0;">{{project.title}}</h2>
+                    {% if request.user.is_authenticated and request.user.profile != project.owner %}
+                    <a href="{% url 'bookmark-project' project.id %}"
+                       title="{% if is_bookmarked %}Remove Bookmark{% else %}Bookmark Project{% endif %}"
+                       style="display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:25px; font-size:1rem; font-weight:700; text-decoration:none; transition:all 0.2s; letter-spacing:0.02em;
+                              {% if is_bookmarked %}background:#4a90e2; color:#fff; border:2px solid #4a90e2;{% else %}background:#fff; color:#4a90e2; border:2px solid #4a90e2;{% endif %}">
+                        <i class="im {% if is_bookmarked %}im-bookmark{% else %}im-bookmark-o{% endif %}" style="font-size:1.1rem;"></i>
+                        {% if is_bookmarked %}Saved{% else %}Save{% endif %}
+                    </a>
+                    {% endif %}
+                </div>
                 <h3 class="singleProject__subtitle">About the Project</h3>
                 <div class="singleProject__info">
                     {{project.description}}

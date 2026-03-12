@@ -11,6 +11,7 @@ from .forms import MessageForm
 from django.db.models import Q
 from .utils import searchProfiles, paginateProfiles
 from django.db.models import F
+from projects.models import Project
 
 def loginUser(request):
     if request.user.is_authenticated:
@@ -210,6 +211,22 @@ def followingList(request):
     following = profile.following.all()
     context = {'following': following}
     return render(request, 'users/following.html', context)
+
+
+@login_required(login_url='login')
+def toggleBookmark(request, pk):
+    project = Project.objects.get(id=pk)
+    profile = request.user.profile
+    if profile.bookmarks.filter(id=pk).exists():
+        profile.bookmarks.remove(project)
+        messages.info(request, 'Bookmark removed.')
+    else:
+        if project.owner == profile:
+            messages.error(request, "You cannot bookmark your own project.")
+            return redirect('project', pk=pk)
+        profile.bookmarks.add(project)
+        messages.success(request, 'Project bookmarked!')
+    return redirect('project', pk=pk)
 
 
 def createMessage(request,pk):

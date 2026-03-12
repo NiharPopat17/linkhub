@@ -42,7 +42,10 @@ def project(request,pk):
             projectObj.getVoteCount()
             messages.success(request, 'Your review was added successfully!')
             return redirect('project', pk=projectObj.id)    
-    return render(request, 'projects/single-project.html', {'project': projectObj, 'form': form, 'show_views': show_views})
+    is_bookmarked = False
+    if request.user.is_authenticated:
+        is_bookmarked = request.user.profile.bookmarks.filter(id=pk).exists()
+    return render(request, 'projects/single-project.html', {'project': projectObj, 'form': form, 'show_views': show_views, 'is_bookmarked': is_bookmarked})
 
 @login_required(login_url='login')
 def createProject(request):
