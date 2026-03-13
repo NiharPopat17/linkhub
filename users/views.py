@@ -188,6 +188,11 @@ def inbox(request):
             'unread_count': unread_count,
         })
 
+    conv_data.sort(
+        key=lambda x: x['last_msg'].created if x['last_msg'] else x['conv'].created,
+        reverse=True,
+    )
+
     total_unread = Message.objects.filter(recipient=profile, is_read=False).count()
     context = {'conv_data': conv_data, 'total_unread': total_unread, 'profile': profile}
     return render(request, 'users/inbox.html', context)
