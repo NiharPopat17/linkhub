@@ -63,7 +63,10 @@ def profiles(request):
     profiles, search_query = searchProfiles(request)
 
     if request.user.is_authenticated:
-        profiles = profiles.exclude(user=request.user)
+        if hasattr(profiles, 'exclude'):
+            profiles = profiles.exclude(user=request.user)
+        else:
+            profiles = [p for p in profiles if p.user != request.user]
 
     custom_range, profiles = paginateProfiles(request, profiles, 6)
     context = {'profiles': profiles, 'search_query': search_query,

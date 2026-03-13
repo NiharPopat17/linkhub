@@ -48,7 +48,7 @@ class Project(models.Model):
         self.vote_total = totalVotes
         self.vote_ratio = ratio
 
-        self.save()
+        self.save(update_fields=['vote_total', 'vote_ratio'])
 
 class Review(models.Model):
     VOTE_TYPE = (
@@ -82,3 +82,16 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+
+@receiver(post_save, sender=Project)
+def update_project_embedding(sender, instance, created, update_fields, **kwargs):
+    if update_fields and set(update_fields) <= {'embedding', 'vote_total', 'vote_ratio'}:
+        return
+    try:
+        from ml.semantic_search import get_embedding
+        tags = ' '.join(instance.tags.values_list('name', flat=True))
+        text = f"{instance.title} {instance.description or ''} {tags}"
+        Project.objects.filter(pk=instance.pk).update(embedding=get_embedding(text))
+    except Exception:
+        pass
