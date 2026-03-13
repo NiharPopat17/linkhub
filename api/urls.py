@@ -11,4 +11,5 @@ urlpatterns = [
     path('projects/<str:pk>/', views.getProject),
     path('projects/<str:pk>/vote/', views.projectVote),
     path('remove-tag/', views.removeTag),
+    path('predict-next-word/', views.predictNextWord, name='predict-next-word'),
 ]   

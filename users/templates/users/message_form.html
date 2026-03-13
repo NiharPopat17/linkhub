@@ -1,12 +1,18 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<!-- Main Section -->
 <main class="formPage my-xl">
     <div class="content-box">
         <div class="formWrapper">
-            <a class="backButton" href="{% url 'user-profile' recipient.id  %}"><i class="im im-angle-left"></i></a>
-            <br>
+
+            <!-- Back button -->
+            <a href="{% url 'user-profile' recipient.id %}" style="
+                display:inline-flex;align-items:center;justify-content:center;
+                width:4rem;height:4rem;border-radius:50%;
+                background:var(--color-main-light,#e6faff);
+                color:var(--color-main,#5aa5b9);
+                text-decoration:none;margin-bottom:1.5rem;
+            "><i class="im im-angle-left" style="font-size:1.8rem;"></i></a>
 
             <form class="form" method="POST">
                 {% csrf_token %}
@@ -16,7 +22,6 @@
                     <label for="formInput#text">{{form.name.label}}</label>
                     {{form.name}}
                 </div>
-
                 <div class="form__field">
                     <label for="formInput#text">{{form.email.label}}</label>
                     {{form.email}}
@@ -26,17 +31,123 @@
                 <div class="form__field">
                     <label for="formInput#text">{{form.subject.label}}</label>
                     {{form.subject}}
+                    <p id="subject-hint" style="display:none;font-size:1.2rem;color:#888;margin-top:0.3rem;">
+                        <kbd style="background:#eee;border:1px solid #ccc;border-radius:3px;padding:1px 5px;font-size:1.1rem;">Tab</kbd>
+                        to accept: <span id="subject-suggestion" style="color:#333;font-style:italic;"></span>
+                    </p>
                 </div>
 
                 <div class="form__field">
                     <label for="formInput#text">{{form.body.label}}</label>
                     {{form.body}}
+                    <p id="body-hint" style="display:none;font-size:1.2rem;color:#888;margin-top:0.3rem;">
+                        <kbd style="background:#eee;border:1px solid #ccc;border-radius:3px;padding:1px 5px;font-size:1.1rem;">Tab</kbd>
+                        to accept: <span id="body-suggestion" style="color:#333;font-style:italic;"></span>
+                    </p>
                 </div>
 
-                <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
+                <input class="btn btn--sub btn--lg my-md" type="submit" value="Submit" />
             </form>
         </div>
     </div>
 </main>
+
+<script>
+    function getCookie(name) {
+        let val = null;
+        if (document.cookie) {
+            for (const c of document.cookie.split(';')) {
+                const [k, v] = c.trim().split('=');
+                if (k === name) { val = decodeURIComponent(v); break; }
+            }
+        }
+        return val;
+    }
+
+    function makePredictor(inputEl, hintEl, hintSpanEl) {
+        if (!inputEl) return;
+        let currentSuggestion = '';
+        let baseText = '';
+        let debounceTimer;
+
+        function showSuggestion(text, sugg) {
+            baseText = text;
+            currentSuggestion = sugg;
+            inputEl.value = text + sugg;
+            inputEl.setSelectionRange(text.length, inputEl.value.length);
+            hintSpanEl.textContent = sugg;
+            hintEl.style.display = 'block';
+        }
+
+        function clearSuggestion(restoreBase) {
+            if (restoreBase && currentSuggestion) {
+                inputEl.value = baseText;
+                inputEl.setSelectionRange(baseText.length, baseText.length);
+            }
+            currentSuggestion = '';
+            baseText = '';
+            hintEl.style.display = 'none';
+            hintSpanEl.textContent = '';
+        }
+
+        inputEl.addEventListener('keydown', (e) => {
+            if ((e.key === 'Tab' || e.key === 'ArrowRight') && currentSuggestion) {
+                e.preventDefault();
+                const accepted = baseText + currentSuggestion;
+                inputEl.value = accepted;
+                inputEl.setSelectionRange(accepted.length, accepted.length);
+                currentSuggestion = '';
+                baseText = '';
+                hintEl.style.display = 'none';
+                return;
+            }
+            if (currentSuggestion) {
+                inputEl.value = baseText;
+                inputEl.setSelectionRange(baseText.length, baseText.length);
+                currentSuggestion = '';
+                baseText = '';
+                hintEl.style.display = 'none';
+            }
+        });
+
+        inputEl.addEventListener('keyup', (e) => {
+            if (e.key === 'Tab' || e.key === 'ArrowRight' || currentSuggestion) return;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const text = inputEl.value;
+                if (!text.trim()) return;
+                fetch('/api/predict-next-word/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ text })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    const sugg = data.suggestion || '';
+                    if (sugg && !currentSuggestion) showSuggestion(inputEl.value, sugg);
+                })
+                .catch(() => {});
+            }, 300);
+        });
+
+        inputEl.addEventListener('blur', () => clearSuggestion(true));
+        inputEl.addEventListener('mousedown', () => { if (currentSuggestion) clearSuggestion(true); });
+    }
+
+    // Wire up both fields
+    makePredictor(
+        document.getElementById('id_subject'),
+        document.getElementById('subject-hint'),
+        document.getElementById('subject-suggestion')
+    );
+    makePredictor(
+        document.getElementById('id_body'),
+        document.getElementById('body-hint'),
+        document.getElementById('body-suggestion')
+    );
+</script>
 
 {% endblock content %}

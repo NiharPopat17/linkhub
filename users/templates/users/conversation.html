@@ -113,7 +113,7 @@
       ">
         <form method="POST" style="display:flex;align-items:flex-end;gap:1rem;">
           {% csrf_token %}
-          <div style="flex:1;position:relative;">
+          <div style="flex:1;">
             <textarea
               id="reply-body"
               name="body"
@@ -130,12 +130,10 @@
               onfocus="this.style.borderColor='#2d2d39'" onblur="this.style.borderColor='var(--color-light,#e5e7eb)'"
               onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.closest('form').submit();}"
             ></textarea>
-            <div id="ghost-text-reply" style="
-              position:absolute;top:1rem;left:1.4rem;
-              font-size:1.4rem;font-family:inherit;line-height:1.5;
-              color:#ccc;pointer-events:none;white-space:pre-wrap;
-              word-break:break-word;max-width:calc(100% - 2.8rem);
-            "></div>
+            <p id="ghost-hint-reply" style="display:none;font-size:1.15rem;color:#888;margin:0.3rem 0 0 0.2rem;">
+              <kbd style="background:#eee;border:1px solid #ccc;border-radius:3px;padding:1px 5px;font-size:1rem;">Tab</kbd>
+              to accept: <span id="ghost-suggestion-reply" style="color:#333;font-style:italic;"></span>
+            </p>
           </div>
           <button type="submit" class="btn btn--sub" style="
             flex-shrink:0;padding:1rem 2.2rem;
@@ -168,38 +166,81 @@
   }
 
   let debounceTimer;
-  const textarea = document.getElementById('reply-body');
-  const ghost    = document.getElementById('ghost-text-reply');
+  const textarea   = document.getElementById('reply-body');
+  const hint       = document.getElementById('ghost-hint-reply');
+  const hintSpan   = document.getElementById('ghost-suggestion-reply');
   let currentSuggestion = '';
+  let baseText = '';
 
-  if (textarea && ghost) {
+  function showSuggestion(text, sugg) {
+    baseText = text;
+    currentSuggestion = sugg;
+    textarea.value = text + sugg;
+    textarea.setSelectionRange(text.length, textarea.value.length);
+    hintSpan.textContent = sugg;
+    hint.style.display = 'block';
+  }
+
+  function clearSuggestion(restoreBase) {
+    if (restoreBase && currentSuggestion) {
+      textarea.value = baseText;
+      textarea.setSelectionRange(baseText.length, baseText.length);
+    }
+    currentSuggestion = '';
+    baseText = '';
+    hint.style.display = 'none';
+    hintSpan.textContent = '';
+  }
+
+  if (textarea) {
     textarea.addEventListener('keydown', (e) => {
+      // Enter submits (unless suggestion showing — dismiss first)
+      if (e.key === 'Enter' && !e.shiftKey && !currentSuggestion) {
+        e.preventDefault();
+        textarea.closest('form').submit();
+        return;
+      }
       if ((e.key === 'Tab' || e.key === 'ArrowRight') && currentSuggestion) {
         e.preventDefault();
-        textarea.value += currentSuggestion;
-        ghost.textContent = '';
+        const accepted = baseText + currentSuggestion;
+        textarea.value = accepted;
+        textarea.setSelectionRange(accepted.length, accepted.length);
         currentSuggestion = '';
+        baseText = '';
+        hint.style.display = 'none';
+        return;
+      }
+      if (currentSuggestion) {
+        textarea.value = baseText;
+        textarea.setSelectionRange(baseText.length, baseText.length);
+        currentSuggestion = '';
+        baseText = '';
+        hint.style.display = 'none';
       }
     });
 
     textarea.addEventListener('keyup', (e) => {
-      if (e.key === 'Tab' || e.key === 'ArrowRight' || e.key === 'Enter') return;
+      if (e.key === 'Tab' || e.key === 'ArrowRight' || e.key === 'Enter' || currentSuggestion) return;
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         const text = textarea.value;
-        if (!text.trim()) { ghost.textContent = ''; return; }
+        if (!text.trim()) return;
         fetch('/api/predict-next-word/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
           body: JSON.stringify({ text })
         })
         .then(r => r.json())
-        .then(data => { currentSuggestion = data.suggestion || ''; ghost.textContent = currentSuggestion; })
-        .catch(() => { ghost.textContent = ''; });
+        .then(data => {
+          const sugg = data.suggestion || '';
+          if (sugg && !currentSuggestion) showSuggestion(textarea.value, sugg);
+        })
+        .catch(() => {});
       }, 300);
     });
 
-    textarea.addEventListener('input', () => { ghost.textContent = ''; currentSuggestion = ''; });
+    textarea.addEventListener('blur', () => clearSuggestion(true));
+    textarea.addEventListener('mousedown', () => { if (currentSuggestion) clearSuggestion(true); });
   }
 </script>
 {% endblock content %}

@@ -49,6 +49,14 @@ def projectVote(request, pk):
     serializer = ProjectSerializer(project, many=False)
     return Response(serializer.data)
 
+@api_view(['POST'])
+def predictNextWord(request):
+    text = request.data.get('text', '')
+    from ml.next_word import predict_next_words
+    suggestion = predict_next_words(text)
+    return Response({'suggestion': suggestion})
+
+
 @api_view(['DELETE'])
 def removeTag(request):
     tagId = request.data['tagId']
