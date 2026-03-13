@@ -3,29 +3,48 @@
 
 <!-- Header Section -->
 <header class="header">
-    <div class="container container--narrow">
+    <div class="container container--narrow header__inner">
         <a href="{% url 'profiles' %}" class="header__logo">
             <img src="{% static 'images/linkhub_logo.svg' %}" alt="LinkHub Logo" />
         </a>
         <nav class="header__nav">
-            <input type="checkbox" id="responsive-menu" />
-            <label for="responsive-menu" class="toggle-menu">
+            <input class="header__navToggle" type="checkbox" id="responsive-menu" />
+            <label for="responsive-menu" class="toggle-menu" aria-label="Toggle navigation">
                 <span>Menu</span>
                 <div class="toggle-menu__lines"></div>
             </label>
             <ul class="header__menu">
-                <li class="header__menuItem"><a href="{% url 'profiles' %}">Developers</a></li>
-                <li class="header__menuItem"><a href="{% url 'projects' %}">Projects</a></li>
-                {% if request.user.is_authenticated %}
                 <li class="header__menuItem">
-                    <a href="{% url 'inbox' %}" {% if unread_message_count %}style="font-weight:700;"{% endif %}>
-                        Inbox{% if unread_message_count %} ({{unread_message_count}}){% endif %}
+                    <a class="header__menuLink {% if request.resolver_match.url_name == 'profiles' %}header__menuLink--active{% endif %}" href="{% url 'profiles' %}">
+                        Developers
                     </a>
                 </li>
-                <li class="header__menuItem"><a href="{% url 'account' %}">My Account</a></li>
-                <li class="header__menuItem"><a href="{% url 'logout' %}" class="btn btn--sub">Logout</a></li>
+                <li class="header__menuItem">
+                    <a class="header__menuLink {% if request.resolver_match.url_name == 'projects' %}header__menuLink--active{% endif %}" href="{% url 'projects' %}">
+                        Projects
+                    </a>
+                </li>
+                {% if request.user.is_authenticated %}
+                <li class="header__menuItem">
+                    <a class="header__menuLink {% if request.resolver_match.url_name == 'inbox' %}header__menuLink--active{% endif %} {% if unread_message_count %}header__menuLink--unread{% endif %}" href="{% url 'inbox' %}">
+                        Inbox
+                        {% if unread_message_count %}
+                        <span class="header__menuCount">{{unread_message_count}}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="header__menuItem">
+                    <a class="header__menuLink {% if request.resolver_match.url_name == 'account' %}header__menuLink--active{% endif %}" href="{% url 'account' %}">
+                        My Account
+                    </a>
+                </li>
+                <li class="header__menuItem header__menuItem--action">
+                    <a href="{% url 'logout' %}" class="btn btn--sub header__actionBtn">Logout</a>
+                </li>
                 {% else %}
-                <li class="header__menuItem"><a href="{% url 'login' %}" class="btn btn--sub">Login/Sign Up</a></li>
+                <li class="header__menuItem header__menuItem--action">
+                    <a href="{% url 'login' %}" class="btn btn--sub header__actionBtn">Login/Sign Up</a>
+                </li>
                 {% endif %}
             </ul>
         </nav>
