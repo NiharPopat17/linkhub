@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate,login,logout
-from .models import Profile,Skill,Message
+from .models import Profile,Skill,Message,Conversation
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -171,10 +171,24 @@ def deleteSkill(request, pk):
 @login_required(login_url='login')
 def inbox(request):
     profile = request.user.profile
-    messageRequests = profile.messages.all()
-    unreadCount = messageRequests.filter(is_read=False).count()
-    context = {'messageRequests': messageRequests, 'unreadCount': unreadCount}
+    convs = profile.conversations.prefetch_related('participants', 'message_set').all()
+
+    conv_data = []
+    for conv in convs:
+        other = conv.participants.exclude(id=profile.id).first()
+        last_msg = conv.message_set.order_by('-created').first()
+        unread_count = conv.message_set.filter(recipient=profile, is_read=False).count()
+        conv_data.append({
+            'conv': conv,
+            'other': other,
+            'last_msg': last_msg,
+            'unread_count': unread_count,
+        })
+
+    total_unread = Message.objects.filter(recipient=profile, is_read=False).count()
+    context = {'conv_data': conv_data, 'total_unread': total_unread, 'profile': profile}
     return render(request, 'users/inbox.html', context)
+
 
 @login_required(login_url='login')
 def viewMessage(request, pk):
@@ -185,6 +199,49 @@ def viewMessage(request, pk):
         message.save()
     context = {'message': message}
     return render(request, 'users/message.html', context)
+
+
+@login_required(login_url='login')
+def conversationThread(request, pk):
+    profile = request.user.profile
+    try:
+        conv = Conversation.objects.get(id=pk)
+    except Conversation.DoesNotExist:
+        messages.error(request, "Conversation not found.")
+        return redirect('inbox')
+
+    if not conv.participants.filter(id=profile.id).exists():
+        messages.error(request, "You are not part of this conversation.")
+        return redirect('inbox')
+
+    conv.message_set.filter(recipient=profile, is_read=False).update(is_read=True)
+
+    thread_messages = conv.message_set.order_by('created')
+    other = conv.participants.exclude(id=profile.id).first()
+
+    if request.method == 'POST':
+        body = request.POST.get('body', '').strip()
+        if body:
+            Message.objects.create(
+                sender=profile,
+                recipient=other,
+                conversation=conv,
+                name=profile.name,
+                email=profile.email,
+                subject='',
+                body=body,
+                is_read=False,
+            )
+            conv.save()
+            return redirect('conversation', pk=conv.id)
+
+    context = {
+        'conv': conv,
+        'thread_messages': thread_messages,
+        'other': other,
+        'profile': profile,
+    }
+    return render(request, 'users/conversation.html', context)
 
 @login_required(login_url='login')
 def followUser(request, pk):
@@ -229,12 +286,12 @@ def toggleBookmark(request, pk):
     return redirect('project', pk=pk)
 
 
-def createMessage(request,pk):
+def createMessage(request, pk):
     recipient = Profile.objects.get(id=pk)
     form = MessageForm()
     try:
         sender = request.user.profile
-    except:
+    except Exception:
         sender = None
 
     if request.method == 'POST':
@@ -247,10 +304,25 @@ def createMessage(request,pk):
             if sender:
                 message.name = sender.name
                 message.email = sender.email
-            message.save()
 
-            messages.success(request, 'Your message was successfully sent!')
-            return redirect('user-profile', pk=recipient.id)
+                existing = Conversation.objects.filter(
+                    participants=sender).filter(participants=recipient)
+                if existing.exists():
+                    conv = existing.first()
+                else:
+                    conv = Conversation.objects.create()
+                    conv.participants.add(sender, recipient)
+
+                message.conversation = conv
+                message.save()
+                conv.save()
+
+                messages.success(request, 'Your message was successfully sent!')
+                return redirect('conversation', pk=conv.id)
+            else:
+                message.save()
+                messages.success(request, 'Your message was successfully sent!')
+                return redirect('user-profile', pk=recipient.id)
 
     context = {'recipient': recipient, 'form': form}
     return render(request, 'users/message_form.html', context)

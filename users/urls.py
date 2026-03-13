@@ -17,6 +17,7 @@ urlpatterns = [
     path('following/', views.followingList, name="following-list"),
     path('bookmark/<str:pk>/', views.toggleBookmark, name='bookmark-project'),
     path('inbox/', views.inbox, name="inbox"),
+    path('inbox/thread/<str:pk>/', views.conversationThread, name="conversation"),
     path('message/<str:pk>/', views.viewMessage, name="message"),
     path('create-message/<str:pk>/', views.createMessage, name="create-message"),
 
