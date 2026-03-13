@@ -30,101 +30,34 @@ img {
 ========================*/
 .header {
   position: sticky;
-  top: 0;
   z-index: 111;
-  background-color: #111111;
+  background-color: var(--color-sub);
   padding: 1.5rem 0;
 }
 
-.header > .container,
-.header__inner {
+.header>.container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 2rem;
 }
 
-.header__logo {
-  padding-bottom: 0;
-}
-
-.header__logo > img {
+.header__logo>img {
   height: 3.8rem;
 }
 
-.header__nav {
-  display: flex;
-  align-items: center;
-}
-
-.header__nav > ul {
+.header__nav>ul {
   display: inline-flex;
   align-items: center;
   list-style: none;
-  gap: 1.6rem;
+  gap: 6.5rem;
 }
 
-.header__menuItem {
-  display: flex;
-  align-items: center;
-}
-
-.header__menuLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 1rem 1.6rem;
-  border-radius: 999px;
+.header__menuItem>a {
   color: var(--color-light);
-  font-weight: 400;
-  line-height: 1;
-  transition: var(--generic-transition);
+  font-weight: 300;
 }
 
-.header__menuLink:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.header__menuLink--active {
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.header__menuLink--unread {
-  font-weight: 700;
-}
-
-.header__menuCount {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.2rem;
-  height: 2.2rem;
-  padding: 0 0.7rem;
-  border-radius: 999px;
-  background: var(--color-light);
-  color: var(--color-sub);
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-.header__menuItem--action {
-  margin-left: 0.8rem;
-}
-
-.header__actionBtn {
-  padding: 1rem 2rem;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #111111;
-  border: 1px solid #ffffff;
-}
-
-.header__actionBtn:hover {
-  background: #f0f0f0;
-  color: #111111;
-}
-
-.toggle-menu > span {
+.toggle-menu>span {
   display: none;
 }
 
@@ -132,7 +65,7 @@ img {
   display: none;
 }
 
-.header__nav input[type='checkbox']:checked ~ .header__menu {
+.header__nav input[type='checkbox']:checked~.header__menu {
   opacity: 1;
   pointer-events: all;
 }
@@ -152,14 +85,14 @@ img {
     position: relative;
   }
 
-  .toggle-menu > span {
+  .toggle-menu>span {
     display: block;
     position: fixed;
     top: 1.5rem;
     right: 2.75rem;
     cursor: pointer;
     padding: 1rem;
-    background: #111111;
+    background: var(--color-sub-light);
     z-index: 999;
     font-size: 0;
     width: 5rem;
@@ -179,7 +112,7 @@ img {
     top: 4rem;
     right: 4rem;
     z-index: 999;
-    background: #ffffff;
+    background: var(--color-light);
     transition: all 0.3s ease-in-out;
   }
 
@@ -193,58 +126,44 @@ img {
     transform-origin: 0 0;
   }
 
-  .header__nav input[type='checkbox']:checked + .toggle-menu > .toggle-menu__lines::before {
+  .header__nav input[type='checkbox']:checked+.toggle-menu>.toggle-menu__lines::before {
     margin-left: 3px;
     transform: rotate(45deg) scaleX(1.2) translateX(-2px) translateY(-4px);
     visibility: visible;
   }
 
-  .header__nav input[type='checkbox']:checked + .toggle-menu > .toggle-menu__lines {
+  .header__nav input[type='checkbox']:checked+.toggle-menu>.toggle-menu__lines {
     visibility: hidden;
   }
 
-  .header__nav input[type='checkbox']:checked + .toggle-menu > .toggle-menu__lines::after {
+  .header__nav input[type='checkbox']:checked+.toggle-menu>.toggle-menu__lines::after {
     transform: rotate(-45deg) scaleX(1.2) translateX(-2px) translateY(3px);
     visibility: visible;
   }
 
-  .header__nav > ul {
+  .header__nav>ul {
     opacity: 0;
     pointer-events: none;
     flex-direction: column;
     justify-content: center;
-    align-items: stretch;
-    gap: 1.4rem;
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
-    background: #111111;
-    padding: 10rem 2.4rem 3rem;
+    background: var(--color-sub);
     transition: all 0.5s ease-in-out;
   }
 
-  .header__menuItem {
-    width: 100%;
+  .header__menuItem a {
+    transition: all 0.5s ease-in-out;
+    padding: 1rem 3rem;
   }
 
-  .header__menuLink,
-  .header__actionBtn {
-    width: 100%;
-    justify-content: center;
-    padding: 1.4rem 1.8rem;
-    font-size: 1.7rem;
-  }
-
-  .header__menuLink:hover,
-  .header__menuLink--active {
-    background: rgba(255, 255, 255, 0.14);
-  }
-
-  .header__menuItem--action {
-    margin-left: 0;
-    margin-top: 0.8rem;
+  .header__menuItem a:hover {
+    padding: 1rem 3rem;
+    border-radius: 3px;
+    background: var(--color-sub-light);
   }
 }
 
@@ -347,47 +266,6 @@ img {
 /*=======================
   Developers
 ========================*/
-
-.home > .hero-section {
-  background: #111111;
-  height: 34vh;
-}
-
-.home .hero-section__box {
-  margin-bottom: 2.5rem;
-}
-
-.home .hero-section__box > h2 {
-  color: #ffffff;
-}
-
-.home .hero-section__box > h2 > span {
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.home .hero-section__search > .form input.input--text {
-  background: #ffffff;
-  border-color: #ffffff;
-  color: #111111;
-}
-
-.home .hero-section__search > .form input.input--text:focus,
-.home .hero-section__search > .form input.input--text:active {
-  border-color: #ffffff;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.14);
-}
-
-.home .hero-section__search > .form .btn {
-  background: #ffffff;
-  color: #111111;
-  border: 1px solid #ffffff;
-}
-
-.home .hero-section__search > .form .btn:hover {
-  background: #ececec;
-  color: #111111;
-}
 
 .devlist {
   margin-top: 8rem;
@@ -615,8 +493,8 @@ img {
   Projects Page
 ========================*/
 .projects>.hero-section {
-  background: #111111;
-  height: 34vh;
+  background: var(--color-sub-lighter);
+  height: 30vh;
 }
 
 .projects .hero-section__box {
@@ -624,35 +502,12 @@ img {
 }
 
 .projects .hero-section__box>h2 {
-  color: #ffffff;
+  color: var(--color-sub);
 }
 
 .projects .hero-section__box>h2>span {
   font-weight: 700;
-  color: #ffffff;
-}
-
-.projects .hero-section__search > .form input.input--text {
-  background: #ffffff;
-  border-color: #ffffff;
-  color: #111111;
-}
-
-.projects .hero-section__search > .form input.input--text:focus,
-.projects .hero-section__search > .form input.input--text:active {
-  border-color: #ffffff;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.14);
-}
-
-.projects .hero-section__search > .form .btn {
-  background: #ffffff;
-  color: #111111;
-  border: 1px solid #ffffff;
-}
-
-.projects .hero-section__search > .form .btn:hover {
-  background: #ececec;
-  color: #111111;
+  color: var(--color-sub);
 }
 
 .projectsList {
