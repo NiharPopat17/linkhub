@@ -7,12 +7,12 @@
 
             <!-- Back button -->
             <a href="{% url 'user-profile' recipient.id %}" style="
-                display:inline-flex;align-items:center;justify-content:center;
-                width:4rem;height:4rem;border-radius:50%;
-                background:var(--color-main-light,#e6faff);
-                color:var(--color-main,#5aa5b9);
-                text-decoration:none;margin-bottom:1.5rem;
-            "><i class="im im-angle-left" style="font-size:1.8rem;"></i></a>
+              display:inline-flex;align-items:center;justify-content:center;
+              width:3.6rem;height:3.6rem;border-radius:50%;
+              background:#f0f2f1;color:#2d2d39;
+              font-size:2.2rem;font-weight:bold;text-decoration:none;
+              margin-bottom:1.5rem;transition:background 0.15s;
+            " onmouseover="this.style.background='#e0e3e1'" onmouseout="this.style.background='#f0f2f1'">&lsaquo;</a>
 
             <form class="form" method="POST">
                 {% csrf_token %}

@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import authenticate,login,logout
 from .models import Profile,Skill,Message,Conversation
 from django.contrib.auth.decorators import login_required
@@ -144,7 +144,7 @@ def createSkill(request):
 @login_required(login_url='login')
 def updateSkill(request, pk):
     profile = request.user.profile
-    skill = profile.skill_set.get(id=pk)
+    skill = get_object_or_404(Skill, id=pk, owner=profile)
     form = SkillForm(instance=skill)
 
     if request.method == 'POST':
@@ -161,7 +161,7 @@ def updateSkill(request, pk):
 @login_required(login_url='login')
 def deleteSkill(request, pk):
     profile = request.user.profile
-    skill = profile.skill_set.get(id=pk)
+    skill = get_object_or_404(Skill, id=pk, owner=profile)
     if request.method == 'POST':
         skill.delete()
         messages.success(request, 'Skill was deleted successfully!')

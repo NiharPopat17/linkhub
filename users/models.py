@@ -38,7 +38,7 @@ class Profile(models.Model):
    
     
     class Meta:
-        ordering = ['created']
+        ordering = ['-created']
 
 class Skill(models.Model):
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True)

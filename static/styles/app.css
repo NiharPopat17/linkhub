@@ -30,31 +30,56 @@ img {
 ========================*/
 .header {
   position: sticky;
+  top: 0;
   z-index: 111;
   background-color: var(--color-sub);
-  padding: 1.5rem 0;
+  padding: 1.2rem 0;
 }
 
 .header>.container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 2rem;
+}
+
+.header__logo {
+  display: inline-flex;
+  align-items: center;
 }
 
 .header__logo>img {
   height: 3.8rem;
+  width: auto;
+  display: block;
+}
+
+.header__nav {
+  display: flex;
+  align-items: center;
 }
 
 .header__nav>ul {
   display: inline-flex;
   align-items: center;
   list-style: none;
-  gap: 6.5rem;
+  gap: 1.4rem;
+  margin: 0;
+  padding: 0;
+}
+
+.header__menuItem {
+  display: flex;
+  align-items: center;
 }
 
 .header__menuItem>a {
+  position: relative;
   color: var(--color-light);
-  font-weight: 300;
+  font-weight: 400;
+  padding: 1rem 1.6rem;
+  border-radius: 999px;
+  transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .toggle-menu>span {
@@ -68,11 +93,20 @@ img {
 .header__nav input[type='checkbox']:checked~.header__menu {
   opacity: 1;
   pointer-events: all;
+  transform: translateY(0);
 }
 
 .project--thumbnail {
   height: 250px;
   object-fit: cover;
+}
+
+@media (hover: hover) {
+  .header__menuItem>a:hover {
+    transform: translateY(-2px);
+    background-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+  }
 }
 
 @media screen and (max-width: 800px) {
@@ -98,6 +132,8 @@ img {
     width: 5rem;
     height: 5rem;
     border-radius: 50%;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
   .toggle-menu__lines,
@@ -152,16 +188,61 @@ img {
     bottom: 0;
     right: 0;
     background: var(--color-sub);
-    transition: all 0.5s ease-in-out;
+    transform: translateY(-1.5rem);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .header__menuItem {
+    opacity: 0;
+    transform: translateY(1.4rem);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .header__nav input[type='checkbox']:checked~.header__menu .header__menuItem {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .header__nav input[type='checkbox']:checked~.header__menu .header__menuItem:nth-child(1) {
+    transition-delay: 0.08s;
+  }
+
+  .header__nav input[type='checkbox']:checked~.header__menu .header__menuItem:nth-child(2) {
+    transition-delay: 0.14s;
+  }
+
+  .header__nav input[type='checkbox']:checked~.header__menu .header__menuItem:nth-child(3) {
+    transition-delay: 0.2s;
+  }
+
+  .header__nav input[type='checkbox']:checked~.header__menu .header__menuItem:nth-child(4) {
+    transition-delay: 0.26s;
+  }
+
+  .header__nav input[type='checkbox']:checked~.header__menu .header__menuItem:nth-child(5) {
+    transition-delay: 0.32s;
   }
 
   .header__menuItem a {
-    transition: all 0.5s ease-in-out;
+    transition: transform 0.3s ease, background-color 0.3s ease;
     padding: 1rem 3rem;
   }
 
   .header__menuItem a:hover {
-    padding: 1rem 3rem;
+    transform: translateY(-2px);
+    border-radius: 3px;
+    background: var(--color-sub-light);
+  }
+}
+
+@media screen and (max-width: 800px) and (hover: hover) {
+  .toggle-menu:hover>span {
+    transform: scale(1.04);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+  }
+
+  .header__menuItem a:hover {
+    transform: translateY(-2px);
     border-radius: 3px;
     background: var(--color-sub-light);
   }
@@ -263,12 +344,78 @@ img {
   }
 }
 
+.home > .hero-section {
+  min-height: 24rem;
+  height: auto;
+  padding: 3.2rem 0;
+}
+
+.home .hero-section__box {
+  margin-bottom: 2rem;
+}
+
+.home .hero-section__box > h2,
+.home .hero-section__box > h2 > span {
+  font-size: 3rem;
+  line-height: 1.2;
+}
+
+.home .hero-section__search > .form {
+  align-items: flex-end;
+  gap: 1.2rem;
+}
+
+.home .hero-section__search > .form .form__field {
+  margin-bottom: 0;
+}
+
+.home .hero-section__search > .form .btn {
+  height: 5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1;
+}
+
+.home .hero-section__search > .form input.input--text {
+  width: 42rem;
+  min-height: 5rem;
+}
+
+@media screen and (max-width: 800px) {
+  .home > .hero-section {
+    min-height: 20rem;
+    padding: 2.6rem 0;
+  }
+
+  .home .hero-section__box {
+    margin-bottom: 1.6rem;
+  }
+
+  .home .hero-section__box > h2,
+  .home .hero-section__box > h2 > span {
+    font-size: 2.5rem;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .home .hero-section__search > .form {
+    gap: 1rem;
+  }
+
+  .home .hero-section__search > .form input.input--text {
+    width: 100%;
+  }
+}
+
 /*=======================
   Developers
 ========================*/
 
 .devlist {
-  margin-top: 8rem;
+  margin-top: 4.5rem;
 }
 
 .devlist .grid {
@@ -493,25 +640,79 @@ img {
   Projects Page
 ========================*/
 .projects>.hero-section {
-  background: var(--color-sub-lighter);
-  height: 30vh;
+  background: var(--color-sub);
+  min-height: 24rem;
+  height: auto;
+  padding: 3.2rem 0;
 }
 
 .projects .hero-section__box {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 
-.projects .hero-section__box>h2 {
-  color: var(--color-sub);
+.projects .hero-section__box>h2,
+.projects .hero-section__box>h2>span {
+  font-size: 3rem;
+  line-height: 1.2;
+  color: var(--color-light);
 }
 
 .projects .hero-section__box>h2>span {
   font-weight: 700;
-  color: var(--color-sub);
+}
+
+.projects .hero-section__search>.form {
+  align-items: flex-end;
+  gap: 1.2rem;
+}
+
+.projects .hero-section__search>.form .form__field {
+  margin-bottom: 0;
+}
+
+.projects .hero-section__search>.form .btn {
+  height: 5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1;
+}
+
+.projects .hero-section__search>.form input.input--text {
+  width: 42rem;
+  min-height: 5rem;
 }
 
 .projectsList {
-  margin-top: 8rem;
+  margin-top: 4.5rem;
+}
+
+@media screen and (max-width: 800px) {
+  .projects>.hero-section {
+    min-height: 20rem;
+    padding: 2.6rem 0;
+  }
+
+  .projects .hero-section__box {
+    margin-bottom: 1.6rem;
+  }
+
+  .projects .hero-section__box>h2,
+  .projects .hero-section__box>h2>span {
+    font-size: 2.5rem;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .projects .hero-section__search>.form {
+    gap: 1rem;
+  }
+
+  .projects .hero-section__search>.form input.input--text {
+    width: 100%;
+  }
 }
 
 /*========== Projects ==========*/

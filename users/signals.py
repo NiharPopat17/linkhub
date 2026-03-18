@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, Skill
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -52,14 +52,25 @@ post_save.connect(updateUser, sender=Profile)
 post_delete.connect(deleteUser, sender=Profile)
 
 
+def _recompute_profile_embedding(profile):
+    try:
+        from ml.semantic_search import get_embedding
+        skills = ' '.join(profile.skill_set.values_list('name', flat=True))
+        text = f"{profile.name or ''} {profile.short_intro or ''} {profile.bio or ''} {skills}"
+        Profile.objects.filter(pk=profile.pk).update(embedding=get_embedding(text))
+    except Exception as e:
+        print(f"Embedding update failed: {e}")
+
+
 @receiver(post_save, sender=Profile)
 def update_profile_embedding(sender, instance, created, update_fields, **kwargs):
     if update_fields and 'embedding' in update_fields:
         return
-    try:
-        from ml.semantic_search import get_embedding
-        skills = ' '.join(instance.skill_set.values_list('name', flat=True))
-        text = f"{instance.name or ''} {instance.short_intro or ''} {instance.bio or ''} {skills}"
-        Profile.objects.filter(pk=instance.pk).update(embedding=get_embedding(text))
-    except Exception:
-        pass
+    _recompute_profile_embedding(instance)
+
+
+@receiver(post_save, sender=Skill)
+@receiver(post_delete, sender=Skill)
+def update_embedding_on_skill_change(sender, instance, **kwargs):
+    if instance.owner:
+        _recompute_profile_embedding(instance.owner)
