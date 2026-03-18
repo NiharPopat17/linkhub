@@ -60,6 +60,26 @@ def project(request,pk):
     return render(request, 'projects/single-project.html', {'project': projectObj, 'form': form, 'show_views': show_views, 'is_bookmarked': is_bookmarked})
 
 @login_required(login_url='login')
+def savedProjects(request):
+    profile = request.user.profile
+    # Order by the M2M through-table id (highest = most recently bookmarked)
+    through = profile.bookmarks.through
+    ordered_ids = list(
+        through.objects.filter(profile=profile)
+        .order_by('-id')
+        .values_list('project_id', flat=True)
+    )
+    project_map = {p.id: p for p in Project.objects.filter(id__in=ordered_ids)}
+    bookmarks = [project_map[pid] for pid in ordered_ids if pid in project_map]
+
+    custom_range, projects = paginateProjects(request, bookmarks, 6)
+    context = {
+        'projects': projects,
+        'custom_range': custom_range,
+    }
+    return render(request, 'projects/saved.html', context)
+
+@login_required(login_url='login')
 def forYou(request):
     try:
         from ml.recommendations import get_project_recommendations

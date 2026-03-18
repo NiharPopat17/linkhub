@@ -117,34 +117,6 @@
 
         </table>
 
-        <div class="settings" style="margin-top:2rem;">
-          <h3 class="settings__title">Saved Projects</h3>
-        </div>
-
-        <table class="settings__table">
-          {% for project in profile.bookmarks.all %}
-          <tr>
-            <td class="settings__thumbnail">
-              <a href="{% url 'project' project.id %}"><img src="{{project.imageURL}}" alt="Project Thumbnail" /></a>
-            </td>
-            <td class="settings__tableInfo">
-              <a href="{% url 'project' project.id %}">{{project.title}}</a>
-              <p>{{project.description|slice:"150"}}</p>
-            </td>
-            <td class="settings__tableActions">
-              <a class="tag tag--pill tag--sub settings__btn" href="{% url 'bookmark-project' project.id %}">
-                <i class="im im-bookmark"></i> Remove
-              </a>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="3" style="padding:1rem 0; color:#888;">
-              <p>No saved projects yet. Browse projects and click <strong>Save</strong> to bookmark them here.</p>
-            </td>
-          </tr>
-          {% endfor %}
-        </table>
       </div>
     </div>
   </div>
