@@ -9,8 +9,20 @@ from django.contrib import messages
 
 def projects(request):
     projects, search_query = searchProjects(request)
+
+    if not search_query:
+        if request.user.is_authenticated:
+            following_ids = list(request.user.profile.following.values_list('id', flat=True))
+            projects = projects.filter(owner__id__in=following_ids).order_by('-created')
+        else:
+            projects = projects.order_by('-vote_ratio', '-vote_total')
+
     custom_range, projects = paginateProjects(request, projects, 6)
-    context = {'projects': projects, 'search_query': search_query, 'custom_range': custom_range}
+    context = {
+        'projects': projects,
+        'search_query': search_query,
+        'custom_range': custom_range,
+    }
     return render(request, 'projects/projects.html', context)
 
 def project(request,pk):
@@ -46,6 +58,20 @@ def project(request,pk):
     if request.user.is_authenticated:
         is_bookmarked = request.user.profile.bookmarks.filter(id=pk).exists()
     return render(request, 'projects/single-project.html', {'project': projectObj, 'form': form, 'show_views': show_views, 'is_bookmarked': is_bookmarked})
+
+@login_required(login_url='login')
+def forYou(request):
+    try:
+        from ml.recommendations import get_project_recommendations
+        projects = get_project_recommendations(request.user.profile, limit=50)
+    except Exception:
+        projects = []
+    custom_range, projects = paginateProjects(request, projects, 6)
+    context = {
+        'projects': projects,
+        'custom_range': custom_range,
+    }
+    return render(request, 'projects/for-you.html', context)
 
 @login_required(login_url='login')
 def createProject(request):

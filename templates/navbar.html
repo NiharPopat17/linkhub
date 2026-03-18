@@ -17,6 +17,7 @@
                 <li class="header__menuItem"><a href="{% url 'profiles' %}">Developers</a></li>
                 <li class="header__menuItem"><a href="{% url 'projects' %}">Projects</a></li>
                 {% if request.user.is_authenticated %}
+                <li class="header__menuItem"><a href="{% url 'for-you' %}">For You</a></li>
                 <li class="header__menuItem">
                     <a href="{% url 'inbox' %}" {% if unread_message_count %}style="font-weight:700;"{% endif %}>
                         Inbox{% if unread_message_count %} ({{unread_message_count}}){% endif %}

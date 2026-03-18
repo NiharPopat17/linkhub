@@ -411,6 +411,85 @@ img {
 }
 
 /*=======================
+  Suggested Developers Strip
+========================*/
+
+.suggested-strip {
+  padding: 3.5rem 0 1rem;
+  border-bottom: 2px solid var(--color-light);
+}
+
+.suggested-strip__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-sub);
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.suggested-strip__row {
+  display: flex;
+  gap: 1.6rem;
+  overflow-x: auto;
+  padding-bottom: 1.2rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-light) transparent;
+}
+
+.suggested-strip__row::-webkit-scrollbar {
+  height: 4px;
+}
+
+.suggested-strip__row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.suggested-strip__row::-webkit-scrollbar-thumb {
+  background: var(--color-light);
+  border-radius: 3px;
+}
+
+.suggested-strip__card {
+  flex: 0 0 24rem;
+  padding: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.suggested-strip__card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.suggested-strip__card .dev__profile {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.suggested-strip__card .dev__meta h3 {
+  color: var(--color-sub);
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.suggested-strip__card .dev__meta h5 {
+  color: var(--color-text);
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0.2rem 0 0;
+}
+
+.suggested-strip__card .dev__skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/*=======================
   Developers
 ========================*/
 

@@ -8,9 +8,8 @@ from .forms import CustomUserCreationForm
 from .forms import ProfileForm
 from .forms import SkillForm
 from .forms import MessageForm
-from django.db.models import Q
+from django.db.models import Q, F, Count
 from .utils import searchProfiles, paginateProfiles
-from django.db.models import F
 from projects.models import Project
 
 def loginUser(request):
@@ -62,15 +61,34 @@ def registerUser(request):
 def profiles(request):
     profiles, search_query = searchProfiles(request)
 
-    if request.user.is_authenticated:
-        if hasattr(profiles, 'exclude'):
-            profiles = profiles.exclude(user=request.user)
+    if search_query:
+        # Search active — show results, excluding the logged-in user
+        if request.user.is_authenticated:
+            if hasattr(profiles, 'exclude'):
+                profiles = profiles.exclude(user=request.user)
+            else:
+                profiles = [p for p in profiles if p.user != request.user]
+    else:
+        # No search — show recommendations as the main listing
+        if request.user.is_authenticated:
+            try:
+                from ml.recommendations import get_developer_recommendations
+                profiles = get_developer_recommendations(request.user.profile, limit=50)
+            except Exception:
+                profiles = Profile.objects.exclude(user=request.user).annotate(
+                    followers_count=Count('followers')
+                ).order_by('-followers_count')
         else:
-            profiles = [p for p in profiles if p.user != request.user]
+            profiles = Profile.objects.annotate(
+                followers_count=Count('followers')
+            ).order_by('-followers_count')
 
     custom_range, profiles = paginateProfiles(request, profiles, 6)
-    context = {'profiles': profiles, 'search_query': search_query,
-               'custom_range': custom_range}
+    context = {
+        'profiles': profiles,
+        'search_query': search_query,
+        'custom_range': custom_range,
+    }
     return render(request, 'users/profiles.html', context)
 
 def userProfile(request,pk):
