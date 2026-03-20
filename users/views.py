@@ -14,7 +14,7 @@ from projects.models import Project
 
 def loginUser(request):
     if request.user.is_authenticated:
-        return redirect('profiles')
+        return redirect('projects')
     if request.method == 'POST':
         username = request.POST.get('username').lower()
         password = request.POST.get('password')
@@ -28,7 +28,7 @@ def loginUser(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect(request.GET.get('next', 'profiles'))
+            return redirect(request.GET.get('next', 'projects'))
         else:
             messages.error(request, "Password is incorrect")
     return render(request, 'users/login_register.html')
@@ -90,6 +90,12 @@ def profiles(request):
         'custom_range': custom_range,
     }
     return render(request, 'users/profiles.html', context)
+
+
+def home(request):
+    """Site root: send everyone to the Projects page."""
+    return redirect('projects')
+
 
 def userProfile(request,pk):
     profile = Profile.objects.get(id=pk)
@@ -214,17 +220,6 @@ def inbox(request):
     total_unread = Message.objects.filter(recipient=profile, is_read=False).count()
     context = {'conv_data': conv_data, 'total_unread': total_unread, 'profile': profile}
     return render(request, 'users/inbox.html', context)
-
-
-@login_required(login_url='login')
-def viewMessage(request, pk):
-    profile = request.user.profile
-    message = profile.messages.get(id=pk)
-    if message.is_read == False:
-        message.is_read = True
-        message.save()
-    context = {'message': message}
-    return render(request, 'users/message.html', context)
 
 
 @login_required(login_url='login')

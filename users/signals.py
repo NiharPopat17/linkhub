@@ -6,7 +6,6 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 def createProfile(sender, instance, created, **kwargs):
-    print('Profile signal triggered')
     if created:
         user = instance
         profile = Profile.objects.create(
@@ -27,8 +26,8 @@ def createProfile(sender, instance, created, **kwargs):
                 [profile.email],
                 fail_silently=False,
             )
-        except:
-            print('Email failed to send...')
+        except Exception:
+            pass
 
 def updateUser(sender, instance, created, **kwargs):
     profile = instance
@@ -58,8 +57,8 @@ def _recompute_profile_embedding(profile):
         skills = ' '.join(profile.skill_set.values_list('name', flat=True))
         text = f"{profile.name or ''} {profile.short_intro or ''} {profile.bio or ''} {skills}"
         Profile.objects.filter(pk=profile.pk).update(embedding=get_embedding(text))
-    except Exception as e:
-        print(f"Embedding update failed: {e}")
+    except Exception:
+        pass
 
 
 @receiver(post_save, sender=Profile)

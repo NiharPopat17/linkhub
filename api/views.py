@@ -44,7 +44,7 @@ def projectVote(request, pk):
 
     review.value = data['value']
     review.save()
-    project.getVoteCount
+    project.getVoteCount()
 
     serializer = ProjectSerializer(project, many=False)
     return Response(serializer.data)

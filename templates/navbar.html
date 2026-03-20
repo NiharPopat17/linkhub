@@ -4,7 +4,7 @@
 <!-- Header Section -->
 <header class="header">
     <div class="container container--narrow">
-        <a href="{% url 'profiles' %}" class="header__logo">
+        <a href="{% url 'projects' %}" class="header__logo">
             <img src="{% static 'images/linkhub_logo.svg' %}" alt="LinkHub Logo" />
         </a>
         <nav class="header__nav">
@@ -14,10 +14,12 @@
                 <div class="toggle-menu__lines"></div>
             </label>
             <ul class="header__menu">
-                <li class="header__menuItem"><a href="{% url 'profiles' %}">Developers</a></li>
-                <li class="header__menuItem"><a href="{% url 'projects' %}">Projects</a></li>
                 {% if request.user.is_authenticated %}
                 <li class="header__menuItem"><a href="{% url 'for-you' %}">For You</a></li>
+                {% endif %}
+                <li class="header__menuItem"><a href="{% url 'projects' %}">Projects</a></li>
+                <li class="header__menuItem"><a href="{% url 'profiles' %}">Developers</a></li>
+                {% if request.user.is_authenticated %}
                 <li class="header__menuItem"><a href="{% url 'saved-projects' %}">Saved</a></li>
                 <li class="header__menuItem">
                     <a href="{% url 'inbox' %}" {% if unread_message_count %}style="font-weight:700;"{% endif %}>

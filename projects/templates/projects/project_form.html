@@ -62,9 +62,7 @@
             let tagId = tagEl.dataset.tag
             let projectId = tagEl.dataset.project
 
-            console.log('TAG ID:', tagId, 'PROJECT ID:', projectId)
-
-            fetch('http://127.0.0.1:8000/api/remove-tag/', {
+            fetch('/api/remove-tag/', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -73,8 +71,7 @@
                 body: JSON.stringify({ 'projectId': projectId, 'tagId': tagId })
             })
                 .then(response => response.json())
-                .then(data => {
-                    console.log('Removed:', data)
+                .then(() => {
                     tagEl.remove()
                 })
                 .catch(err => console.error('Error:', err))

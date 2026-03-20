@@ -6,7 +6,8 @@ urlpatterns = [
     path('logout/',views.logoutUser,name= "logout"),
     path('register/',views.registerUser,name= "register"),
 
-    path('', views.profiles, name="profiles"),
+    path('', views.home, name="home"),
+    path('developers/', views.profiles, name="profiles"),
     path('profile/<str:pk>/', views.userProfile, name="user-profile"),
     path('account/', views.userAccount, name="account"),
     path('edit-account/', views.editAccount, name="edit-account"),
@@ -18,7 +19,6 @@ urlpatterns = [
     path('bookmark/<str:pk>/', views.toggleBookmark, name='bookmark-project'),
     path('inbox/', views.inbox, name="inbox"),
     path('inbox/thread/<str:pk>/', views.conversationThread, name="conversation"),
-    path('message/<str:pk>/', views.viewMessage, name="message"),
     path('create-message/<str:pk>/', views.createMessage, name="create-message"),
 
 ]
