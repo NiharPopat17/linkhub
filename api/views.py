@@ -1,6 +1,7 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .serializers import ProjectSerializer
 from projects.models import Project, Review, Tag
@@ -22,18 +23,18 @@ def getRoutes(request):
 def getProjects(request):
     projects = Project.objects.all()
     serializer = ProjectSerializer(projects, many=True)
-    return Response(serializer.data)    
+    return Response(serializer.data)
 
 @api_view(['GET'])
 def getProject(request, pk):
-    projects = Project.objects.get(id=pk)
-    serializer = ProjectSerializer(projects, many=False)
-    return Response(serializer.data)    
+    project = get_object_or_404(Project, id=pk)
+    serializer = ProjectSerializer(project, many=False)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def projectVote(request, pk):
-    project = Project.objects.get(id=pk)
+    project = get_object_or_404(Project, id=pk)
     user = request.user.profile
     data = request.data
 
@@ -50,6 +51,7 @@ def projectVote(request, pk):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def predictNextWord(request):
     text = request.data.get('text', '')
     from ml.next_word import predict_next_words
@@ -58,11 +60,14 @@ def predictNextWord(request):
 
 
 @api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def removeTag(request):
-    tagId = request.data['tagId']
-    projectId = request.data['projectId']
-    project = Project.objects.get(id=projectId)
-    tag = Tag.objects.get(id=tagId)
+    tagId = request.data.get('tagId')
+    projectId = request.data.get('projectId')
+    if not tagId or not projectId:
+        return Response({'error': 'tagId and projectId are required'}, status=400)
+    project = get_object_or_404(Project, id=projectId)
+    tag = get_object_or_404(Tag, id=tagId)
     project.tags.remove(tag)
     return Response('Tag was deleted')
 
