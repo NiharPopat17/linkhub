@@ -65,3 +65,24 @@ def removeTag(request):
     tag = Tag.objects.get(id=tagId)
     project.tags.remove(tag)
     return Response('Tag was deleted')
+
+
+@api_view(['GET'])
+def searchUsers(request):
+    """Return up to 8 matching usernames for autocomplete."""
+    query = request.GET.get('q', '').strip()
+    if len(query) < 1:
+        return Response([])
+    from users.models import Profile
+    profiles = Profile.objects.filter(
+        user__username__icontains=query
+    ).exclude(user__isnull=True).select_related('user')[:8]
+    results = [
+        {
+            'username': p.user.username,
+            'name': p.name or p.user.username,
+            'image': p.imageURL,
+        }
+        for p in profiles
+    ]
+    return Response(results)

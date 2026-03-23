@@ -130,11 +130,15 @@ def userAccount(request):
     skills = profile.skill_set.all()
     projects = profile.project_set.all()
     following_count = profile.following.count()
+    pending_invites = profile.received_invites.filter(status='pending').select_related('project', 'sender')
+    collaborations = profile.collaborations.all()
     context = {
         'profile': profile,
         'skills': skills,
         'projects': projects,
         'following_count': following_count,
+        'pending_invites': pending_invites,
+        'collaborations': collaborations,
     }
     return render(request, 'users/account.html',context)
 

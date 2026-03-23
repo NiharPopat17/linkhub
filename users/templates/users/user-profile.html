@@ -128,6 +128,44 @@
 
                     </div>
                 </div>
+
+                {% if profile.collaborations.all %}
+                <div class="devInfo">
+                    <h3 class="devInfo__title">Collaborations</h3>
+                    <div class="grid grid--two">
+                        {% for project in profile.collaborations.all %}
+                        <div class="column">
+                            <div class="card project">
+                                <a href="{% url 'project' project.id %}" class="project">
+                                    <img class="project__thumbnail" src="{{project.imageURL}}"
+                                        alt="project thumbnail" />
+                                    <div class="card__body">
+                                        <h3 class="project__title">{{project.title}}</h3>
+                                        <p><a class="project__author"
+                                                href="{% url 'user-profile' project.owner.id %}">By
+                                                {{project.owner.name}}</a>
+                                        </p>
+
+                                        <p class="project--rating">
+                                            <span style="font-weight: bold;">{{project.vote_ratio}}%</span> Postitive
+                                            Feedback ({{project.vote_total}} Vote{{project.vote_total|pluralize:"s"}})
+                                        </p>
+
+                                        <div class="project__tags">
+                                            {% for tag in project.tags.all %}
+                                            <span class="tag tag--pill tag--main">
+                                                <small>{{tag}}</small>
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

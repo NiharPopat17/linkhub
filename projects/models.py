@@ -12,6 +12,9 @@ class Project(models.Model):
     featured_image = models.ImageField(null=True, blank=True, default="default.jpg")
     demo_link = models.CharField(max_length=200, null=True, blank=True)
     source_link = models.CharField(max_length=200, null=True, blank=True)
+    collaborators = models.ManyToManyField(
+        'users.Profile', blank=True, related_name='collaborations'
+    )
     tags = models.ManyToManyField('Tag', blank=True)
     vote_total = models.IntegerField(default=0, null=True, blank=True)
     vote_ratio = models.IntegerField(default=0, null=True, blank=True)
@@ -25,6 +28,10 @@ class Project(models.Model):
 
     class Meta:
         ordering = ['-created']
+
+    @property
+    def is_collaborative(self):
+        return self.collaborators.exists()
 
     @property
     def reviewers(self):
@@ -95,3 +102,23 @@ def update_project_embedding(sender, instance, created, update_fields, **kwargs)
         Project.objects.filter(pk=instance.pk).update(embedding=get_embedding(text))
     except Exception:
         pass
+
+
+class CollaborationInvite(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('declined', 'Declined'),
+    )
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='collab_invites')
+    sender = models.ForeignKey('users.Profile', on_delete=models.CASCADE, related_name='sent_invites')
+    recipient = models.ForeignKey('users.Profile', on_delete=models.CASCADE, related_name='received_invites')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created = models.DateTimeField(auto_now_add=True)
+    id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
+
+    class Meta:
+        unique_together = [['project', 'recipient']]
+
+    def __str__(self):
+        return f"{self.sender} → {self.recipient} ({self.project.title}) [{self.status}]"

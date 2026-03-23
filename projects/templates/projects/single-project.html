@@ -30,11 +30,46 @@
                 </a>
                 {% endif %}
 
+                {% if project.collaborators.all %}
+                <h3 class="singleProject__subtitle" style="margin-top: 1.5rem;">Collaborators</h3>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for collab in project.collaborators.all %}
+                    <a href="{% url 'user-profile' collab.id %}" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #333; background: #f0f0f0; padding: 6px 12px 6px 6px; border-radius: 20px; font-size: 0.85rem; transition: background 0.2s;">
+                        <img src="{{ collab.imageURL }}" alt="{{ collab.name }}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;">
+                        {{ collab.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if request.user.is_authenticated and request.user.profile == project.owner %}
+                <div style="margin-top: 16px;">
+                    <button id="toggleInviteBtn" onclick="document.getElementById('inviteFormBox').style.display = document.getElementById('inviteFormBox').style.display === 'none' ? 'block' : 'none'" class="btn btn--sub" style="width: 100%; font-size: 0.85rem; padding: 8px 12px; cursor: pointer;">
+                        <i class="im im-plus"></i> Add Collaborator
+                    </button>
+                    <div id="inviteFormBox" style="display: none; margin-top: 10px; position: relative;">
+                        <form method="POST" action="{% url 'invite-collaborator' project.id %}" autocomplete="off">
+                            {% csrf_token %}
+                            <div style="position: relative;">
+                                <input type="text" name="username" id="collabUsernameInput" placeholder="Search username..." required
+                                    style="width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 0.9rem; outline: none; box-sizing: border-box;">
+                                <div id="usernameSuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; max-height: 220px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
+                            </div>
+                            <button type="submit" class="btn btn--sub" style="width: 100%; margin-top: 8px; font-size: 0.85rem; padding: 8px 12px; cursor: pointer;">
+                                Send Invite
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+
             </div>
             <div class="column column--2of3">
                 <img class="singleProject__preview" src="{{ project.imageURL }}" alt="portfolio thumbnail" />
                 <a href="{% url 'user-profile' project.owner.id  %}"
                     class="singleProject__developer">{{project.owner.name}}</a>
+
+
                 <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
                     <h2 class="singleProject__title" style="margin:0;">{{project.title}}</h2>
                     {% if request.user.is_authenticated and request.user.profile != project.owner %}
@@ -47,6 +82,7 @@
                     </a>
                     {% endif %}
                 </div>
+
                 <h3 class="singleProject__subtitle">About the Project</h3>
                 <div class="singleProject__info">
                     {{project.description}}
@@ -106,5 +142,53 @@
     </div>
     </div>
 </main>
+
+{% if request.user.is_authenticated and request.user.profile == project.owner %}
+<script>
+(function() {
+    const input = document.getElementById('collabUsernameInput');
+    const sugBox = document.getElementById('usernameSuggestions');
+    if (!input || !sugBox) return;
+
+    let debounceTimer;
+
+    input.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const q = this.value.trim();
+        if (q.length < 1) { sugBox.style.display = 'none'; return; }
+        debounceTimer = setTimeout(() => {
+            fetch('/api/search-users/?q=' + encodeURIComponent(q))
+                .then(r => r.json())
+                .then(users => {
+                    if (!users.length) { sugBox.style.display = 'none'; return; }
+                    sugBox.innerHTML = '';
+                    users.forEach(u => {
+                        const item = document.createElement('div');
+                        item.style.cssText = 'display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; transition:background 0.15s; border-bottom:1px solid #f0f0f0;';
+                        item.innerHTML = `
+                            <img src="${u.image}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                            <div>
+                                <div style="font-weight:600; font-size:0.9rem; color:#333;">${u.name}</div>
+                                <div style="font-size:0.8rem; color:#888;">@${u.username}</div>
+                            </div>`;
+                        item.addEventListener('mouseenter', () => item.style.background = '#f5f5f5');
+                        item.addEventListener('mouseleave', () => item.style.background = '#fff');
+                        item.addEventListener('mousedown', (e) => {
+                            e.preventDefault();
+                            input.value = u.username;
+                            sugBox.style.display = 'none';
+                        });
+                        sugBox.appendChild(item);
+                    });
+                    sugBox.style.display = 'block';
+                });
+        }, 300);
+    });
+
+    input.addEventListener('blur', () => setTimeout(() => sugBox.style.display = 'none', 200));
+    input.addEventListener('focus', () => { if (input.value.trim().length >= 1) input.dispatchEvent(new Event('input')); });
+})();
+</script>
+{% endif %}
 
 {% endblock %}

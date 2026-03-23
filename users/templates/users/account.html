@@ -63,6 +63,39 @@
           <h3 class="devInfo__title">About Me</h3>
           <p class="devInfo__about">{{profile.bio}}</p>
         </div>
+
+        {% if pending_invites %}
+        <div class="settings">
+          <h3 class="settings__title">Pending Invites</h3>
+        </div>
+        <table class="settings__table">
+          {% for invite in pending_invites %}
+          <tr>
+            <td class="settings__tableInfo">
+              <h4>{{ invite.project.title }}</h4>
+              <p>Invited by {{ invite.sender.name }} &middot; {{ invite.created|timesince }} ago</p>
+            </td>
+            <td class="settings__tableActions">
+              <form method="POST" action="{% url 'respond-invite' invite.id %}" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="accept">
+                <button type="submit" class="tag tag--pill tag--sub settings__btn" style="cursor:pointer; border:none;">
+                  <i class="im im-check-mark"></i> Accept
+                </button>
+              </form>
+              <form method="POST" action="{% url 'respond-invite' invite.id %}" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="decline">
+                <button type="submit" class="tag tag--pill tag--main settings__btn" style="cursor:pointer; border:none;">
+                  <i class="im im-x-mark"></i> Decline
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+        {% endif %}
+
         <div class="settings">
           <h3 class="settings__title">Skills</h3>
           <a class="tag tag--pill tag--sub settings__btn tag--lg" href="{% url 'create-skill' %}"><i
@@ -116,6 +149,29 @@
           {% endfor %}
 
         </table>
+
+        {% if collaborations %}
+        <div class="settings">
+          <h3 class="settings__title">Collaborations</h3>
+        </div>
+        <table class="settings__table">
+          {% for project in collaborations %}
+          <tr>
+            <td class="settings__thumbnail">
+              <a href="{% url 'project' project.id %}"><img src="{{project.imageURL}}" alt="Project Thumbnail" /></a>
+            </td>
+            <td class="settings__tableInfo">
+              <a href="{% url 'project' project.id %}">{{project.title}}</a>
+              <p>By {{ project.owner.name }} &middot; {{project.description|slice:"150"}}</p>
+            </td>
+            <td class="settings__tableActions">
+              <a class="tag tag--pill tag--main settings__btn" href="{% url 'update-project' project.id %}"><i
+                  class="im im-edit"></i> Edit</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+        {% endif %}
 
       </div>
     </div>

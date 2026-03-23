@@ -1,11 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.db.models import Q, F
-from .models import Project, Tag
+from .models import Project, Tag, CollaborationInvite
 from .forms import ProjectForm, ReviewForm
 from django.contrib.auth.decorators import login_required
 from .utils import searchProjects, paginateProjects
 from django.contrib import messages
+from users.models import Profile
 
 def projects(request):
     projects, search_query = searchProjects(request)
@@ -115,7 +116,11 @@ def createProject(request):
 @login_required(login_url='login')
 def updateProject(request, pk):
     profile = request.user.profile
-    project = profile.project_set.get(id=pk)
+    # Allow both owner and collaborators to edit
+    project = get_object_or_404(
+        Project.objects.filter(Q(owner=profile) | Q(collaborators=profile)).distinct(),
+        id=pk
+    )
     form = ProjectForm(instance=project)
     if request.method == 'POST':
         newtags = request.POST.get('newtags').replace(',',  " ").split()
@@ -140,3 +145,89 @@ def deleteProject(request, pk):
         return redirect('account')
     context = {'object': project}
     return render(request, 'delete_template.html', context)
+
+
+@login_required(login_url='login')
+def inviteCollaborator(request, pk):
+    """POST-only. Project owner invites a user by username."""
+    project = get_object_or_404(Project, id=pk)
+    
+    # Only the owner can invite collaborators
+    if request.user.profile != project.owner:
+        messages.error(request, 'Only the project owner can invite collaborators.')
+        return redirect('project', pk=pk)
+    
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        
+        if not username:
+            messages.error(request, 'Please enter a username.')
+            return redirect('project', pk=pk)
+        
+        # Find the recipient profile by username
+        try:
+            recipient = Profile.objects.get(user__username=username)
+        except Profile.DoesNotExist:
+            messages.error(request, f'User "{username}" not found.')
+            return redirect('project', pk=pk)
+        
+        # Can't invite yourself
+        if recipient == request.user.profile:
+            messages.error(request, 'You cannot invite yourself.')
+            return redirect('project', pk=pk)
+        
+        # Can't invite someone who is already a collaborator
+        if project.collaborators.filter(id=recipient.id).exists():
+            messages.warning(request, f'{recipient.name or username} is already a collaborator.')
+            return redirect('project', pk=pk)
+        
+        # Can't send a duplicate pending invite
+        if CollaborationInvite.objects.filter(project=project, recipient=recipient, status='pending').exists():
+            messages.warning(request, f'An invite is already pending for {recipient.name or username}.')
+            return redirect('project', pk=pk)
+        
+        # Delete any old declined invites so unique_together doesn't block re-invites
+        CollaborationInvite.objects.filter(project=project, recipient=recipient).exclude(status='pending').delete()
+        
+        CollaborationInvite.objects.create(
+            project=project,
+            sender=request.user.profile,
+            recipient=recipient,
+            status='pending',
+        )
+        messages.success(request, f'Invitation sent to {recipient.name or username}!')
+        return redirect('project', pk=pk)
+    
+    return redirect('project', pk=pk)
+
+
+@login_required(login_url='login')
+def respondToInvite(request, pk):
+    """POST-only. Recipient accepts or declines an invite."""
+    invite = get_object_or_404(CollaborationInvite, id=pk)
+    
+    # Only the recipient can respond
+    if request.user.profile != invite.recipient:
+        messages.error(request, 'You are not the recipient of this invite.')
+        return redirect('account')
+    
+    if invite.status != 'pending':
+        messages.warning(request, 'This invite has already been responded to.')
+        return redirect('account')
+    
+    if request.method == 'POST':
+        action = request.POST.get('action', '')
+        
+        if action == 'accept':
+            invite.status = 'accepted'
+            invite.save()
+            invite.project.collaborators.add(invite.recipient)
+            messages.success(request, f'You are now a collaborator on "{invite.project.title}"!')
+        elif action == 'decline':
+            invite.status = 'declined'
+            invite.save()
+            messages.info(request, f'You declined the invite to "{invite.project.title}".')
+        else:
+            messages.error(request, 'Invalid action.')
+    
+    return redirect('account')
