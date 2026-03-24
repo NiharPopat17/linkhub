@@ -19,14 +19,14 @@
 
                 {% if project.source_link %}
                 <a class="singleProject__liveLink" href="{{project.source_link}}" target="_blank"><i
-                        class="im im-external-link"></i>Source
+                        class="fas fa-external-link-alt"></i>Source
                     Code
                 </a>
                 {% endif %}
 
                 {% if project.demo_link %}
                 <a class="singleProject__liveLink" href="{{project.source_link}}" target="_blank"><i
-                        class="im im-external-link"></i>Live Demo
+                        class="fas fa-external-link-alt"></i>Live Demo
                 </a>
                 {% endif %}
 
@@ -45,7 +45,7 @@
                 {% if request.user.is_authenticated and request.user.profile == project.owner %}
                 <div style="margin-top: 16px;">
                     <button id="toggleInviteBtn" onclick="document.getElementById('inviteFormBox').style.display = document.getElementById('inviteFormBox').style.display === 'none' ? 'block' : 'none'" class="btn btn--sub" style="width: 100%; font-size: 0.85rem; padding: 8px 12px; cursor: pointer;">
-                        <i class="im im-plus"></i> Add Collaborator
+                        <i class="fas fa-plus"></i> Add Collaborator
                     </button>
                     <div id="inviteFormBox" style="display: none; margin-top: 10px; position: relative;">
                         <form method="POST" action="{% url 'invite-collaborator' project.id %}" autocomplete="off">
@@ -77,7 +77,7 @@
                        title="{% if is_bookmarked %}Remove Bookmark{% else %}Bookmark Project{% endif %}"
                        style="display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:25px; font-size:1rem; font-weight:700; text-decoration:none; transition:all 0.2s; letter-spacing:0.02em;
                               {% if is_bookmarked %}background:#4a90e2; color:#fff; border:2px solid #4a90e2;{% else %}background:#fff; color:#4a90e2; border:2px solid #4a90e2;{% endif %}">
-                        <i class="im {% if is_bookmarked %}im-bookmark{% else %}im-bookmark-o{% endif %}" style="font-size:1.1rem;"></i>
+                        <i class="{% if is_bookmarked %}fas fa-bookmark{% else %}far fa-bookmark{% endif %}" style="font-size:1.1rem;"></i>
                         {% if is_bookmarked %}Saved{% else %}Save{% endif %}
                     </a>
                     {% endif %}

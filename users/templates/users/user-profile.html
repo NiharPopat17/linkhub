@@ -1,174 +1,126 @@
 {% extends 'main.html' %}
+{% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'styles/user-profile.css' %}" />
 
-<!-- Main Section -->
-<main class="profile my-md">
-    <div class="container">
-        <div class="layout">
-            <div class="column column--1of3">
-                <div class="card text-center">
-                    <div class="card__body dev">
-                        <img class="avatar avatar--xl" src="{{ profile.imageURL }}" />
-                        <h2 class="dev__name">{{profile.name}}</h2>
-                        <p class="dev__title">{{profile.short_intro}}</p>
-                        {% if show_views %}
-                        <p class="dev__location">{{ profile.views }} profile view{{ profile.views|pluralize:"s" }}</p>
-                        {% endif %}
-                        <ul class="dev__social">
+<main class="up-page my-md">
+  <div class="container">
+    <div class="layout">
 
-                            {% if profile.social_github %}
-                            <li>
-                                <a title="Github" href="{{profile.social_github}}" target="_blank" rel="noopener">
-                                    <i class="fab fa-github"></i>
-                                </a>
-                            </li>
-                            {% endif %}
+      <!-- Left: Profile Card -->
+      <div class="column column--1of3">
+        <div class="up-profile-card">
+          <div class="up-profile-body">
+            <img class="up-avatar" src="{{ profile.imageURL }}" alt="{{ profile.name }}" />
+            <h2 class="up-name">{{ profile.name }}</h2>
+            <p class="up-title">{{ profile.short_intro }}</p>
+            {% if show_views %}
+            <p class="up-views">{{ profile.views }} profile view{{ profile.views|pluralize:"s" }}</p>
+            {% endif %}
 
-                            {% if profile.social_twitter %}
-                            <li>
-                                <a title="Twitter" href="{{profile.social_twitter}}" target="_blank" rel="noopener">
-                                    <i class="fab fa-twitter"></i>
-                                </a>
-                            </li>
-                            {% endif %}
+            <ul class="up-social">
+              {% if profile.social_github %}
+              <li><a title="Github" href="{{ profile.social_github }}" target="_blank" rel="noopener"><i class="fab fa-github"></i></a></li>
+              {% endif %}
+              {% if profile.social_twitter %}
+              <li><a title="Twitter" href="{{ profile.social_twitter }}" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a></li>
+              {% endif %}
+              {% if profile.social_linkedin %}
+              <li><a title="LinkedIn" href="{{ profile.social_linkedin }}" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i></a></li>
+              {% endif %}
+              {% if profile.social_website %}
+              <li><a title="Website" href="{{ profile.social_website }}" target="_blank" rel="noopener"><i class="fas fa-globe"></i></a></li>
+              {% endif %}
+            </ul>
 
-                            {% if profile.social_linkedin %}
-                            <li>
-                                <a title="LinkedIn" href="{{profile.social_linkedin}}" target="_blank" rel="noopener">
-                                    <i class="fab fa-linkedin"></i>
-                                </a>
-                            </li>
-                            {% endif %}
-
-                            {% if profile.social_website %}
-                            <li>
-                                <a title="Personal Website" href="{{profile.social_website}}" target="_blank"
-                                    rel="noopener">
-                                    <i class="fas fa-globe"></i>
-                                </a>
-                            </li>
-                            {% endif %}
-                        </ul>
-                        {% if request.user.is_authenticated and request.user.profile.id != profile.id %}
-                        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
-                            <a href="{% url 'follow-user' profile.id %}" class="btn btn--lg {% if is_following %}btn--main{% else %}btn--sub{% endif %}">
-                                {% if is_following %}Unfollow{% else %}Follow{% endif %}
-                            </a>
-                            <a href="{% url 'create-message' profile.id %}" class="btn btn--sub btn--lg">Send Message</a>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
+            {% if request.user.is_authenticated and request.user.profile.id != profile.id %}
+            <div class="up-actions">
+              <a href="{% url 'follow-user' profile.id %}" class="up-btn {% if is_following %}up-btn--unfollow{% else %}up-btn--follow{% endif %}">
+                {% if is_following %}Unfollow{% else %}Follow{% endif %}
+              </a>
+              <a href="{% url 'create-message' profile.id %}" class="up-btn up-btn--message">Message</a>
             </div>
-            <div class="column column--2of3">
-                <div class="devInfo">
-                    <h3 class="devInfo__title">About Me</h3>
-                    <p class="devInfo__about">{{profile.bio}}</p>
-                </div>
-                <div class="devInfo">
-                    <h3 class="devInfo__title">Skills</h3>
-                    <div class="devInfo__skills">
-
-                        {% for skill in topSkills %}
-                        <div class="devSkill">
-                            <h4 class="devSkill__title">{{skill.name}}</h4>
-                            <p class="devSkill__info">{{skill.description}}</p>
-                        </div>
-                        {% endfor %}
-
-                        <h3 class="devInfo__subtitle">Other Skills</h3>
-                        <div class="devInfo__otherSkills">
-
-                            {% for skill in otherSkills %}
-                            <span class="tag tag--pill tag--sub tag--lg">
-                                <small>{{skill}}</small>
-                            </span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="devInfo">
-                    <h3 class="devInfo__title">Projects</h3>
-                    <div class="grid grid--two">
-                        {% for project in profile.project_set.all %}
-                        <div class="column">
-                            <div class="card project">
-                                <a href="{% url 'project' project.id %}" class="project">
-                                    <img class="project__thumbnail" src="{{project.imageURL}}"
-                                        alt="project thumbnail" />
-                                    <div class="card__body">
-                                        <h3 class="project__title">{{project.title}}</h3>
-                                        <p><a class="project__author"
-                                                href="{% url 'user-profile' project.owner.id %}">By
-                                                {{project.owner.name}}</a>
-                                        </p>
-
-                                        <p class="project--rating">
-                                            <span style="font-weight: bold;">{{project.vote_ratio}}%</span> Postitive
-                                            Feedback ({{project.vote_total}} Vote{{project.vote_total|pluralize:"s"}})
-                                        </p>
-
-                                        <div class="project__tags">
-
-                                            {% for tag in project.tags.all %}
-                                            <span class="tag tag--pill tag--main">
-                                                <small>{{tag}}</small>
-                                            </span>
-                                            {% endfor %}
-
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        {% endfor %}
-
-
-                    </div>
-                </div>
-
-                {% if profile.collaborations.all %}
-                <div class="devInfo">
-                    <h3 class="devInfo__title">Collaborations</h3>
-                    <div class="grid grid--two">
-                        {% for project in profile.collaborations.all %}
-                        <div class="column">
-                            <div class="card project">
-                                <a href="{% url 'project' project.id %}" class="project">
-                                    <img class="project__thumbnail" src="{{project.imageURL}}"
-                                        alt="project thumbnail" />
-                                    <div class="card__body">
-                                        <h3 class="project__title">{{project.title}}</h3>
-                                        <p><a class="project__author"
-                                                href="{% url 'user-profile' project.owner.id %}">By
-                                                {{project.owner.name}}</a>
-                                        </p>
-
-                                        <p class="project--rating">
-                                            <span style="font-weight: bold;">{{project.vote_ratio}}%</span> Postitive
-                                            Feedback ({{project.vote_total}} Vote{{project.vote_total|pluralize:"s"}})
-                                        </p>
-
-                                        <div class="project__tags">
-                                            {% for tag in project.tags.all %}
-                                            <span class="tag tag--pill tag--main">
-                                                <small>{{tag}}</small>
-                                            </span>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-            </div>
+            {% endif %}
+          </div>
         </div>
+      </div>
+
+      <!-- Right: Content -->
+      <div class="column column--2of3">
+
+        <!-- About -->
+        {% if profile.bio %}
+        <div class="up-section">
+          <h3 class="up-section-title">About Me</h3>
+          <p class="up-about">{{ profile.bio }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Skills -->
+        {% if topSkills or otherSkills %}
+        <div class="up-section">
+          <h3 class="up-section-title">Skills</h3>
+          {% for skill in topSkills %}
+          <div class="up-skill">
+            <span class="up-skill-name">{{ skill.name }}</span>
+            <p class="up-skill-desc">{{ skill.description }}</p>
+          </div>
+          {% endfor %}
+
+          {% if otherSkills %}
+          <div class="up-other-skills">
+            {% for skill in otherSkills %}
+            <span class="up-skill-tag">{{ skill }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Projects -->
+        {% if profile.project_set.all %}
+        <div class="up-section">
+          <h3 class="up-section-title">Projects</h3>
+          {% for project in profile.project_set.all %}
+          <div class="up-item">
+            <a href="{% url 'project' project.id %}">
+              <img class="up-item-thumb" src="{{ project.imageURL }}" alt="{{ project.title }}" />
+            </a>
+            <div class="up-item-body">
+              <a class="up-item-name" href="{% url 'project' project.id %}">{{ project.title }}</a>
+              <p class="up-item-desc">
+                <strong>{{ project.vote_ratio }}%</strong> Positive Feedback ({{ project.vote_total }} Vote{{ project.vote_total|pluralize:"s" }})
+              </p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Collaborations -->
+        {% if profile.collaborations.all %}
+        <div class="up-section">
+          <h3 class="up-section-title">Collaborations</h3>
+          {% for project in profile.collaborations.all %}
+          <div class="up-item">
+            <a href="{% url 'project' project.id %}">
+              <img class="up-item-thumb" src="{{ project.imageURL }}" alt="{{ project.title }}" />
+            </a>
+            <div class="up-item-body">
+              <a class="up-item-name" href="{% url 'project' project.id %}">{{ project.title }}</a>
+              <p class="up-item-desc">
+                <strong>{{ project.vote_ratio }}%</strong> Positive Feedback ({{ project.vote_total }} Vote{{ project.vote_total|pluralize:"s" }})
+              </p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </div>
     </div>
+  </div>
 </main>
 
 {% endblock content %}

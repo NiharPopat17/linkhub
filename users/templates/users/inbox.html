@@ -1,67 +1,60 @@
 {% extends 'main.html' %}
+{% load static %}
 
 {% block content %}
-<main class="inbox my-xl">
-  <div class="content-box">
+<link rel="stylesheet" href="{% static 'styles/account.css' %}" />
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
-      <h3 class="inbox__title">
-        Messages
-        {% if total_unread %}
-          <span style="
-            display:inline-flex;align-items:center;justify-content:center;
-            background:#e74c3c;color:#fff;border-radius:50%;
-            min-width:2.2rem;height:2.2rem;font-size:1.2rem;
-            font-weight:700;margin-left:0.8rem;padding:0 0.4rem;
-          ">{{ total_unread }}</span>
-        {% endif %}
-      </h3>
-    </div>
+<main class="acct-page my-md">
+  <div class="container" style="max-width: 64rem; margin: 0 auto;">
 
-    {% if conv_data %}
-    <ul class="messages" style="list-style:none;padding:0;margin:0;">
-      {% for item in conv_data %}
-      <li style="border-bottom:1px solid var(--color-light,#eee);">
-        <a href="{% url 'conversation' item.conv.id %}" style="
-          display:flex;align-items:center;gap:1.5rem;
-          padding:1.4rem 1rem;text-decoration:none;color:inherit;
-          transition:background 0.15s;
-        " onmouseover="this.style.background='#f5f7f6'" onmouseout="this.style.background='transparent'">
+    <div class="acct-section">
+      <div class="acct-section-header">
+        <h3 class="acct-section-title" style="display: flex; align-items: center; gap: 0.8rem;">
+          Messages
+          {% if total_unread %}
+          <span style="display:inline-flex;align-items:center;justify-content:center;background:var(--color-error);color:#fff;border-radius:50%;min-width:2rem;height:2rem;font-size:1.1rem;font-weight:700;padding:0 0.4rem;">{{ total_unread }}</span>
+          {% endif %}
+        </h3>
+        <button onclick="document.getElementById('newMsgBox').style.display = document.getElementById('newMsgBox').style.display === 'none' ? 'block' : 'none'"
+          class="acct-add-btn" style="cursor: pointer; border: none; font-family: inherit;">+ New Message</button>
+      </div>
 
-          <!-- Avatar -->
+      <!-- New Message Box -->
+      <div id="newMsgBox" style="display: none; margin-bottom: 1.6rem; padding: 1.4rem; border: 1px solid var(--color-light); border-radius: 0.8rem; background: var(--color-bg);">
+        <label style="font-size: 1.25rem; font-weight: 600; color: var(--color-sub); display: block; margin-bottom: 0.6rem;">Send message to</label>
+        <div style="position: relative;">
+          <input type="text" id="newMsgUsername" placeholder="Search username..."
+            autocomplete="off"
+            style="width: 100%; padding: 0.9rem 1.2rem; border: 2px solid var(--color-light); border-radius: 0.7rem; background: var(--color-white); font-size: 1.3rem; font-family: inherit; color: var(--color-sub); transition: border-color 0.2s;"
+            onfocus="this.style.borderColor='var(--color-main)'" />
+          <div id="newMsgSuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--color-white); border: 1px solid var(--color-light); border-top: none; border-radius: 0 0 0.7rem 0.7rem; max-height: 22rem; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"></div>
+        </div>
+      </div>
+
+      {% if conv_data %}
+      <div>
+        {% for item in conv_data %}
+        <a href="{% url 'conversation' item.conv.id %}" class="acct-item" style="text-decoration: none; color: inherit; transition: background 0.15s; border-radius: 0.6rem; padding: 1rem; margin: 0 -1rem;"
+          onmouseover="this.style.background='var(--color-bg)'" onmouseout="this.style.background='transparent'">
+
           {% if item.other %}
-          <img
-            src="{{ item.other.imageURL }}"
-            alt="{{ item.other.name }}"
-            style="width:5rem;height:5rem;border-radius:50%;object-fit:cover;flex-shrink:0;"
-          />
+          <img src="{{ item.other.imageURL }}" alt="{{ item.other.name }}"
+            style="width: 4.4rem; height: 4.4rem; min-width: 4.4rem; border-radius: 50%; object-fit: cover;" />
           {% else %}
-          <div style="
-            width:5rem;height:5rem;border-radius:50%;background:#94a69e;
-            display:flex;align-items:center;justify-content:center;
-            color:#fff;font-size:2rem;flex-shrink:0;
-          ">?</div>
+          <div style="width:4.4rem;height:4.4rem;min-width:4.4rem;border-radius:50%;background:var(--color-gray);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;">?</div>
           {% endif %}
 
-          <!-- Content -->
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">
-              <span style="font-weight:{% if item.unread_count %}700{% else %}500{% endif %};font-size:1.5rem;">
+          <div class="acct-item-body" style="gap: 0.2rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:1.4rem;font-weight:{% if item.unread_count %}700{% else %}600{% endif %};color:var(--color-sub);">
                 {{ item.other.name|default:item.other.username|default:"Unknown" }}
               </span>
-              <span style="font-size:1.1rem;color:#888;white-space:nowrap;margin-left:1rem;">
+              <span style="font-size:1.05rem;color:var(--color-gray);white-space:nowrap;margin-left:1rem;">
                 {% if item.last_msg %}{{ item.last_msg.created|date:"M d, g:i a" }}{% endif %}
               </span>
             </div>
-
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <span style="
-                font-size:1.3rem;
-                color:{% if item.unread_count %}#2d2d39{% else %}#888{% endif %};
-                font-weight:{% if item.unread_count %}600{% else %}400{% endif %};
-                white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-                max-width:50rem;
-              ">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.2rem;">
+              <span style="font-size:1.2rem;color:{% if item.unread_count %}var(--color-sub){% else %}var(--color-gray){% endif %};font-weight:{% if item.unread_count %}600{% else %}400{% endif %};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40rem;">
                 {% if item.last_msg %}
                   {% if item.last_msg.sender.id == profile.id %}You: {% endif %}
                   {{ item.last_msg.body|truncatechars:60 }}
@@ -69,29 +62,74 @@
                   <em>No messages yet</em>
                 {% endif %}
               </span>
-
               {% if item.unread_count %}
-              <span style="
-                display:inline-flex;align-items:center;justify-content:center;
-                background:#2d2d39;color:#fff;border-radius:50%;
-                min-width:2rem;height:2rem;font-size:1.1rem;
-                font-weight:700;margin-left:1rem;flex-shrink:0;padding:0 0.3rem;
-              ">{{ item.unread_count }}</span>
+              <span style="display:inline-flex;align-items:center;justify-content:center;background:var(--color-main);color:#fff;border-radius:50%;min-width:2rem;height:2rem;font-size:1.05rem;font-weight:700;margin-left:0.8rem;flex-shrink:0;padding:0 0.3rem;">{{ item.unread_count }}</span>
               {% endif %}
             </div>
           </div>
         </a>
-      </li>
-      {% endfor %}
-    </ul>
+        {% endfor %}
+      </div>
 
-    {% else %}
-    <div style="text-align:center;padding:6rem 2rem;color:#888;">
-      <p style="font-size:1.8rem;margin-bottom:1rem;">No conversations yet.</p>
-      <p style="font-size:1.4rem;">Visit a developer's profile and send them a message to start a conversation.</p>
+      {% else %}
+      <div style="text-align:center;padding:3rem 0;color:var(--color-gray);font-size:1.3rem;">
+        <p>No conversations yet.</p>
+        <p style="margin-top:0.5rem;">Use the <strong>+ New Message</strong> button above or message someone from their profile.</p>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
 
   </div>
 </main>
+
+<script>
+  const input = document.getElementById('newMsgUsername');
+  const sugBox = document.getElementById('newMsgSuggestions');
+  let debounceTimer;
+
+  sugBox.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#newMsgBox')) {
+      sugBox.style.display = 'none';
+    }
+  });
+
+  input.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const q = this.value.trim();
+    if (q.length < 1) { sugBox.style.display = 'none'; return; }
+
+    debounceTimer = setTimeout(() => {
+      fetch('/api/search-users/?q=' + encodeURIComponent(q))
+        .then(r => r.json())
+        .then(data => {
+          sugBox.innerHTML = '';
+          if (!data.length) {
+            sugBox.innerHTML = '<div style="padding:1rem 1.2rem;color:var(--color-gray);font-size:1.2rem;">No users found</div>';
+            sugBox.style.display = 'block';
+            return;
+          }
+          data.forEach(function(u) {
+            const item = document.createElement('div');
+            item.style.cssText = 'display:flex;align-items:center;gap:1rem;padding:0.8rem 1.2rem;cursor:pointer;transition:background 0.15s;';
+            item.innerHTML =
+              '<img src="' + u.image + '" style="width:3.2rem;height:3.2rem;border-radius:50%;object-fit:cover;" />' +
+              '<div><span style="font-size:1.25rem;font-weight:600;color:var(--color-sub);">' + u.name + '</span>' +
+              '<p style="font-size:1.1rem;color:var(--color-gray);margin:0;">@' + u.username + '</p></div>';
+            item.addEventListener('click', function() {
+              window.location.href = '/create-message/' + u.id + '/';
+            });
+            item.addEventListener('mouseover', function() { this.style.background = 'var(--color-bg)'; });
+            item.addEventListener('mouseout', function() { this.style.background = 'transparent'; });
+            sugBox.appendChild(item);
+          });
+          sugBox.style.display = 'block';
+        });
+    }, 250);
+  });
+</script>
+
 {% endblock content %}

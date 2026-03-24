@@ -1,32 +1,44 @@
 {% extends 'main.html' %}
+{% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'styles/form-page.css' %}" />
 
+<main class="fp">
+  <div class="fp-card">
+    <a class="fp-back" href="{% url 'account' %}">
+      <i class="fas fa-arrow-left"></i> Back to Account
+    </a>
 
-<div class="auth" style="height:auto; min-height:100vh;">
-    <!-- Main Section -->
-    <main class="formPage my-xl">
-        <div class="content-box">
-            <div class="formWrapper">
-                <a href="{% url 'account' %}"
-                    style="display:inline-flex;align-items:center;justify-content:center;width:4rem;height:4rem;border-radius:50%;background:#94a69e;color:#fff;font-size:2rem;font-weight:bold;text-decoration:none;margin-bottom:1rem;">&lsaquo;</a>
-                <br>
+    {% if is_update %}
+    <h2 class="fp-heading">Update Skill</h2>
+    <p class="fp-subtext">Edit the details of your skill below.</p>
+    {% else %}
+    <h2 class="fp-heading">Add New Skill</h2>
+    <p class="fp-subtext">Add a skill to showcase on your profile.</p>
+    {% endif %}
 
-                <form class="form" method="POST" action="">
-                    {% csrf_token %}
+    <hr class="fp-divider" />
 
-                    {% for field in form %}
-                    <div class="form__field">
-                        <label for="formInput#text"> {{field.label}}</label>
-                        {{field}}
-                    </div>
-                    {% endfor %}
+    <form method="POST" action="">
+      {% csrf_token %}
 
-                    <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
-                </form>
-            </div>
-        </div>
-    </main>
-</div>
+      {% for field in form %}
+      <div class="fp-field">
+        <label class="fp-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <span style="color: var(--color-error); font-size: 1.2rem; margin-top: 0.3rem; display: block;">{{ field.errors.0 }}</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="fp-actions">
+        <input class="fp-submit" type="submit" value="{% if is_update %}Update Skill{% else %}Add Skill{% endif %}" />
+        <a class="fp-cancel" href="{% url 'account' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</main>
 
 {% endblock %}

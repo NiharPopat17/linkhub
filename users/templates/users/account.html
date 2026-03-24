@@ -2,175 +2,154 @@
 {% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'styles/account.css' %}" />
 
-<!-- Main Section -->
-<main class="settingsPage profile my-md">
+<main class="acct-page my-md">
   <div class="container">
     <div class="layout">
+
+      <!-- Left: Profile Card -->
       <div class="column column--1of3">
-        <div class="card text-center">
-          <div class="card__body dev">
-            <a class="tag tag--pill tag--main settings__btn" href="{% url 'edit-account' %}"><i class="im im-edit"></i>
-              Edit</a>
-            <img class="avatar avatar--xl dev__avatar" src="{{profile.imageURL}}" />
-            <h2 class="dev__name">{{profile.name}}</h2>
-            <p class="dev__title">{{profile.short_intro}}</p>
+        <div class="acct-profile-card">
+          <div class="acct-profile-banner"></div>
+          <div class="acct-profile-body">
+            <img class="acct-avatar" src="{{ profile.imageURL }}" alt="{{ profile.name }}" />
+            <h2 class="acct-name">{{ profile.name }}</h2>
+            <p class="acct-title">{{ profile.short_intro }}</p>
 
-            <ul class="dev__social">
+            <ul class="acct-social">
               {% if profile.social_github %}
-              <li>
-                <a title="Github" href="{{profile.social_github}}" target="_blank"><i class="im im-github"></i></a>
-              </li>
+              <li><a title="Github" href="{{ profile.social_github }}" target="_blank" rel="noopener"><i class="fab fa-github"></i></a></li>
               {% endif %}
-
-
               {% if profile.social_twitter %}
-              <li>
-                <a title="Twitter" href="{{profile.social_twitter}}" target="_blank"><i class="im im-twitter"></i></a>
-              </li>
+              <li><a title="Twitter" href="{{ profile.social_twitter }}" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a></li>
               {% endif %}
-
               {% if profile.social_linkedin %}
-              <li>
-                <a title="LinkedIn" href="{{profile.social_linkedin}}" target="_blank"><i
-                    class="im im-linkedin"></i></a>
-              </li>
+              <li><a title="LinkedIn" href="{{ profile.social_linkedin }}" target="_blank" rel="noopener"><i class="fab fa-linkedin"></i></a></li>
               {% endif %}
-
               {% if profile.social_website %}
-              <li>
-                <a title="Personal Website" href="{{profile.social_website}}" target="_blank"><i
-                    class="im im-globe"></i></a>
-              </li>
+              <li><a title="Website" href="{{ profile.social_website }}" target="_blank" rel="noopener"><i class="fas fa-globe"></i></a></li>
               {% endif %}
-
             </ul>
 
-            <div style="margin-top: 20px;">
-              <a href="{% url 'following-list' %}" style="text-decoration: none; color: inherit;">
-                <div style="display: inline-flex; flex-direction: column; align-items: center; cursor: pointer; gap: 4px;">
-                  <span style="font-size: 2.2rem; font-weight: 800; color: #333; line-height: 1;">{{following_count}}</span>
-                  <span style="font-size: 0.95rem; color: #666; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Following</span>
-                </div>
+            <div class="acct-stats">
+              <a href="{% url 'following-list' %}" class="acct-stat">
+                <span class="acct-stat-num">{{ following_count }}</span>
+                <span class="acct-stat-label">Following</span>
               </a>
             </div>
 
+            <a class="acct-edit-btn" href="{% url 'edit-account' %}">Edit Profile</a>
           </div>
         </div>
       </div>
+
+      <!-- Right: Content -->
       <div class="column column--2of3">
-        <div class="devInfo">
-          <h3 class="devInfo__title">About Me</h3>
-          <p class="devInfo__about">{{profile.bio}}</p>
+
+        <!-- About -->
+        <div class="acct-section">
+          <div class="acct-section-header">
+            <h3 class="acct-section-title">About Me</h3>
+          </div>
+          <p class="acct-about">{{ profile.bio }}</p>
         </div>
 
+        <!-- Pending Invites -->
         {% if pending_invites %}
-        <div class="settings">
-          <h3 class="settings__title">Pending Invites</h3>
-        </div>
-        <table class="settings__table">
+        <div class="acct-section">
+          <div class="acct-section-header">
+            <h3 class="acct-section-title">Pending Invites</h3>
+          </div>
           {% for invite in pending_invites %}
-          <tr>
-            <td class="settings__tableInfo">
-              <h4>{{ invite.project.title }}</h4>
-              <p>Invited by {{ invite.sender.name }} &middot; {{ invite.created|timesince }} ago</p>
-            </td>
-            <td class="settings__tableActions">
+          <div class="acct-item">
+            <div class="acct-item-body">
+              <span class="acct-item-name">{{ invite.project.title }}</span>
+              <p class="acct-item-desc">Invited by {{ invite.sender.name }} &middot; {{ invite.created|timesince }} ago</p>
+            </div>
+            <div class="acct-item-actions">
               <form method="POST" action="{% url 'respond-invite' invite.id %}" style="display:inline;">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="accept">
-                <button type="submit" class="tag tag--pill tag--sub settings__btn" style="cursor:pointer; border:none;">
-                  <i class="im im-check-mark"></i> Accept
-                </button>
+                <button type="submit" class="acct-btn acct-btn--accept">Accept</button>
               </form>
               <form method="POST" action="{% url 'respond-invite' invite.id %}" style="display:inline;">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="decline">
-                <button type="submit" class="tag tag--pill tag--main settings__btn" style="cursor:pointer; border:none;">
-                  <i class="im im-x-mark"></i> Decline
-                </button>
+                <button type="submit" class="acct-btn acct-btn--decline">Decline</button>
               </form>
-            </td>
-          </tr>
+            </div>
+          </div>
           {% endfor %}
-        </table>
+        </div>
         {% endif %}
 
-        <div class="settings">
-          <h3 class="settings__title">Skills</h3>
-          <a class="tag tag--pill tag--sub settings__btn tag--lg" href="{% url 'create-skill' %}"><i
-              class="im im-plus"></i> Add Skill</a>
-        </div>
-
-        <table class="settings__table">
+        <!-- Skills -->
+        <div class="acct-section">
+          <div class="acct-section-header">
+            <h3 class="acct-section-title">Skills</h3>
+            <a class="acct-add-btn" href="{% url 'create-skill' %}">+ Add Skill</a>
+          </div>
           {% for skill in skills %}
-          <tr>
-            <td class="settings__tableInfo">
-              <h4>{{skill.name}}</h4>
-              <p>
-                {{skill.description}}
-              </p>
-            </td>
-            <td class="settings__tableActions">
-              <a class="tag tag--pill tag--main settings__btn" href="{% url 'update-skill' skill.id %}"><i
-                  class="im im-edit"></i> Edit</a>
-              <a class="tag tag--pill tag--main settings__btn" href="{% url 'delete-skill' skill.id %}?next=/account"><i
-                  class="im im-x-mark-circle-o"></i>
-                Delete</a>
-            </td>
-          </tr>
+          <div class="acct-item">
+            <div class="acct-item-body">
+              <span class="acct-skill-tag">{{ skill.name }}</span>
+              {% if skill.description %}<p class="acct-item-desc">{{ skill.description }}</p>{% endif %}
+            </div>
+            <div class="acct-item-actions">
+              <a class="acct-btn acct-btn--edit" href="{% url 'update-skill' skill.id %}">Edit</a>
+              <a class="acct-btn acct-btn--delete" href="{% url 'delete-skill' skill.id %}?next=/account">Delete</a>
+            </div>
+          </div>
           {% endfor %}
-        </table>
-
-        <div class="settings">
-          <h3 class="settings__title">Projects</h3>
-          <a class="tag tag--pill tag--sub settings__btn tag--lg" href="{% url 'create-project' %}"><i
-              class="im im-plus"></i> Add Project</a>
         </div>
 
-        <table class="settings__table">
+        <!-- Projects -->
+        <div class="acct-section">
+          <div class="acct-section-header">
+            <h3 class="acct-section-title">Projects</h3>
+            <a class="acct-add-btn" href="{% url 'create-project' %}">+ Add Project</a>
+          </div>
           {% for project in projects %}
-          <tr>
-            <td class="settings__thumbnail">
-              <a href="{% url 'project' project.id %}"><img src="{{project.imageURL}}" alt="Project Thumbnail" /></a>
-            </td>
-            <td class="settings__tableInfo">
-              <a href="{% url 'project' project.id %}">{{project.title}}</a>
-              <p>{{project.description|slice:"150"}}</p>
-            </td>
-            <td class="settings__tableActions">
-              <a class="tag tag--pill tag--main settings__btn" href="{% url 'update-project' project.id %}"><i
-                  class="im im-edit"></i> Edit</a>
-              <a class="tag tag--pill tag--main settings__btn"
-                href="{% url 'delete-project'  project.id %}?next=/account"><i class="im im-x-mark-circle-o"></i>
-                Delete</a>
-            </td>
-          </tr>
+          <div class="acct-item">
+            <a href="{% url 'project' project.id %}">
+              <img class="acct-item-thumb" src="{{ project.imageURL }}" alt="{{ project.title }}" />
+            </a>
+            <div class="acct-item-body">
+              <a class="acct-item-name" href="{% url 'project' project.id %}">{{ project.title }}</a>
+              <p class="acct-item-desc">{{ project.description|slice:"150" }}</p>
+            </div>
+            <div class="acct-item-actions">
+              <a class="acct-btn acct-btn--edit" href="{% url 'update-project' project.id %}">Edit</a>
+              <a class="acct-btn acct-btn--delete" href="{% url 'delete-project' project.id %}?next=/account">Delete</a>
+            </div>
+          </div>
+          {% empty %}
+          <p class="acct-empty">No projects added yet.</p>
           {% endfor %}
-
-        </table>
-
-        {% if collaborations %}
-        <div class="settings">
-          <h3 class="settings__title">Collaborations</h3>
         </div>
-        <table class="settings__table">
+
+        <!-- Collaborations -->
+        {% if collaborations %}
+        <div class="acct-section">
+          <div class="acct-section-header">
+            <h3 class="acct-section-title">Collaborations</h3>
+          </div>
           {% for project in collaborations %}
-          <tr>
-            <td class="settings__thumbnail">
-              <a href="{% url 'project' project.id %}"><img src="{{project.imageURL}}" alt="Project Thumbnail" /></a>
-            </td>
-            <td class="settings__tableInfo">
-              <a href="{% url 'project' project.id %}">{{project.title}}</a>
-              <p>By {{ project.owner.name }} &middot; {{project.description|slice:"150"}}</p>
-            </td>
-            <td class="settings__tableActions">
-              <a class="tag tag--pill tag--main settings__btn" href="{% url 'update-project' project.id %}"><i
-                  class="im im-edit"></i> Edit</a>
-            </td>
-          </tr>
+          <div class="acct-item">
+            <a href="{% url 'project' project.id %}">
+              <img class="acct-item-thumb" src="{{ project.imageURL }}" alt="{{ project.title }}" />
+            </a>
+            <div class="acct-item-body">
+              <a class="acct-item-name" href="{% url 'project' project.id %}">{{ project.title }}</a>
+              <p class="acct-item-desc">By {{ project.owner.name }} &middot; {{ project.description|slice:"150" }}</p>
+            </div>
+            <div class="acct-item-actions">
+              <a class="acct-btn acct-btn--edit" href="{% url 'update-project' project.id %}">Edit</a>
+            </div>
+          </div>
           {% endfor %}
-        </table>
+        </div>
         {% endif %}
 
       </div>

@@ -1,0 +1,273 @@
+/* conversation.css — Scoped under .conv-page */
+
+.conv-page {
+  padding: 1.5rem 0 2rem;
+}
+
+.conv-wrapper {
+  max-width: 64rem;
+  width: 95%;
+  margin: 0 auto;
+}
+
+.conv-panel {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 6.8rem - 3.5rem);
+  border: 1px solid var(--color-light);
+  border-radius: 1.2rem;
+  overflow: hidden;
+  background: var(--color-white);
+}
+
+/* Header */
+.conv-header {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.2rem 2rem;
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-light);
+  flex-shrink: 0;
+}
+
+.conv-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-sub);
+  font-size: 1.4rem;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.2s;
+  border: 1px solid var(--color-light);
+}
+
+.conv-back:hover {
+  background: var(--color-sub);
+  color: var(--color-white);
+}
+
+.conv-user-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  min-width: 0;
+  transition: opacity 0.2s;
+}
+
+.conv-user-link:hover {
+  opacity: 0.8;
+}
+
+.conv-user-avatar {
+  width: 3.8rem;
+  height: 3.8rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.conv-user-name {
+  font-weight: 700;
+  font-size: 1.45rem;
+  color: var(--color-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conv-user-intro {
+  font-size: 1.1rem;
+  color: var(--color-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Messages area */
+.conv-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem 2rem;
+  background: var(--color-bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-light) transparent;
+}
+
+.conv-messages::-webkit-scrollbar {
+  width: 5px;
+}
+
+.conv-messages::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+/* Bubbles */
+.conv-bubble-row {
+  display: flex;
+}
+
+.conv-bubble-row--own {
+  justify-content: flex-end;
+}
+
+.conv-bubble-row--other {
+  align-items: flex-end;
+  gap: 0.7rem;
+}
+
+.conv-bubble-avatar {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.conv-bubble {
+  max-width: 60%;
+  padding: 1rem 1.4rem;
+  word-break: break-word;
+  font-size: 1.35rem;
+  line-height: 1.55;
+}
+
+.conv-bubble--own {
+  background: var(--color-sub);
+  color: #fff;
+  border-radius: 1.4rem 1.4rem 0.3rem 1.4rem;
+}
+
+.conv-bubble--other {
+  background: var(--color-white);
+  color: var(--color-sub);
+  border-radius: 1.4rem 1.4rem 1.4rem 0.3rem;
+  border: 1px solid var(--color-light);
+}
+
+.conv-bubble p {
+  margin: 0;
+}
+
+.conv-bubble-time {
+  font-size: 0.95rem;
+  margin-top: 0.3rem;
+  text-align: right;
+}
+
+.conv-bubble--own .conv-bubble-time {
+  opacity: 0.5;
+}
+
+.conv-bubble--other .conv-bubble-time {
+  color: var(--color-gray);
+}
+
+.conv-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gray);
+  font-size: 1.3rem;
+}
+
+/* Reply bar */
+.conv-reply {
+  flex-shrink: 0;
+  padding: 1rem 2rem;
+  background: var(--color-white);
+  border-top: 1px solid var(--color-light);
+}
+
+.conv-reply-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.8rem;
+}
+
+.conv-reply-input {
+  flex: 1;
+}
+
+.conv-reply-input textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.9rem 1.2rem;
+  border: 2px solid var(--color-light);
+  border-radius: 0.8rem;
+  font-size: 1.3rem;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: none;
+  background: var(--color-bg);
+  color: var(--color-sub);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.conv-reply-input textarea:focus {
+  border-color: var(--color-main);
+}
+
+.conv-send-btn {
+  flex-shrink: 0;
+  padding: 0.9rem 2rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: var(--color-main);
+  color: #fff;
+  transition: background 0.2s, transform 0.15s;
+  height: fit-content;
+}
+
+.conv-send-btn:hover {
+  background: #4a95a8;
+}
+
+.conv-send-btn:active {
+  transform: scale(0.97);
+}
+
+.conv-hint {
+  font-size: 1.05rem;
+  color: var(--color-gray);
+  margin: 0.3rem 0 0;
+  padding-left: 0.2rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .conv-bubble {
+    max-width: 80%;
+  }
+
+  .conv-header {
+    padding: 1rem 1.2rem;
+  }
+
+  .conv-messages {
+    padding: 1.5rem 1rem;
+  }
+
+  .conv-reply {
+    padding: 0.8rem 1rem;
+  }
+}

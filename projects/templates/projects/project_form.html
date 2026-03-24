@@ -1,46 +1,66 @@
 {% extends 'main.html' %}
+{% load static %}
+
 {% block content %}
+<link rel="stylesheet" href="{% static 'styles/form-page.css' %}" />
 
+<main class="fp">
+  <div class="fp-card" style="max-width: 52rem;">
+    <a class="fp-back" href="{% if is_update %}{% url 'project' project.id %}{% else %}{% url 'account' %}{% endif %}">
+      <i class="fas fa-arrow-left"></i> {% if is_update %}Back to Project{% else %}Back to Account{% endif %}
+    </a>
 
+    {% if is_update %}
+    <h2 class="fp-heading">Update Project</h2>
+    <p class="fp-subtext">Edit your project details below.</p>
+    {% else %}
+    <h2 class="fp-heading">Add New Project</h2>
+    <p class="fp-subtext">Fill in the details to create a new project.</p>
+    {% endif %}
 
-<!-- Main Section -->
-<main class="formPage my-xl">
-    <div class="content-box">
-        <div class="formWrapper">
-            <a href="{% if project.id %}{% url 'project' project.id %}{% else %}{% url 'account' %}{% endif %}"
-                style="display:inline-flex;align-items:center;justify-content:center;width:4rem;height:4rem;border-radius:50%;background:#94a69e;color:#fff;font-size:2rem;font-weight:bold;text-decoration:none;margin-bottom:1rem;">&lsaquo;</a>
-            <br>
+    <hr class="fp-divider" />
 
-            <form class="form" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
 
-                {% for field in form %}
-                <!-- Input:Text -->
-                <div class="form__field">
-                    <label for="formInput#text">{{field.label}}</label>
-                    {{field}}
-                </div>
-                {% endfor %}
+      {% for field in form %}
+      <div class="fp-field">
+        <label class="fp-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <span style="color: var(--color-error); font-size: 1.2rem; margin-top: 0.3rem; display: block;">{{ field.errors.0 }}</span>
+        {% endif %}
+      </div>
+      {% endfor %}
 
-                <div class="form__field">
-                    {% for tag in project.tags.all %}
-                    <div class="project-tag tag tag--pill tag--main" data-tag="{{tag.id}}"
-                        data-project="{{project.id}}">{{tag.name}} &#215;</div>
-                    {% endfor %}
-                </div>
-
-                <div class="form__field">
-                    <label for="formInput#text">Tags</label>
-                    <textarea class="input" name="newtags" placeholder="Add tags here..."></textarea>
-                </div>
-                <input class="btn btn--sub btn--lg  my-md" type="submit" value="Submit" />
-            </form>
+      {% if is_update %}
+      <div class="fp-field">
+        <label class="fp-label">Current Tags</label>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+          {% for tag in project.tags.all %}
+          <span class="project-tag" data-tag="{{ tag.id }}" data-project="{{ project.id }}"
+            style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 1rem; border-radius: 999px; background: var(--color-main-light); color: var(--color-main); font-size: 1.15rem; font-weight: 500; cursor: pointer; transition: opacity 0.2s;">
+            {{ tag.name }} &times;
+          </span>
+          {% endfor %}
         </div>
-    </div>
+      </div>
+      {% endif %}
+
+      <div class="fp-field">
+        <label class="fp-label" for="newtags">Tags</label>
+        <textarea name="newtags" placeholder="Add tags separated by commas or spaces..."></textarea>
+      </div>
+
+      <div class="fp-actions">
+        <input class="fp-submit" type="submit" value="{% if is_update %}Update Project{% else %}Create Project{% endif %}" />
+        <a class="fp-cancel" href="{% if is_update %}{% url 'project' project.id %}{% else %}{% url 'account' %}{% endif %}">Cancel</a>
+      </div>
+    </form>
+  </div>
 </main>
 
 <script>
-    // Helper to get cookie value (needed for CSRF token)
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {

@@ -1,0 +1,327 @@
+/* account.css — Scoped entirely under .acct-page so it won't affect other pages */
+
+.acct-page {
+  padding: 3rem 0;
+}
+
+/* ── Profile Card ── */
+.acct-page .acct-profile-card {
+  background: var(--color-white);
+  border-radius: 1.2rem;
+  overflow: hidden;
+  border: 1px solid var(--color-light);
+  position: sticky;
+  top: 2rem;
+}
+
+.acct-page .acct-profile-banner {
+  display: none;
+}
+
+.acct-page .acct-profile-body {
+  padding: 0 2.4rem 2.4rem;
+  text-align: center;
+}
+
+.acct-page .acct-avatar {
+  width: 9rem;
+  height: 9rem;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.acct-page .acct-name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-top: 1rem;
+  line-height: 1.3;
+}
+
+.acct-page .acct-title {
+  font-size: 1.3rem;
+  color: var(--color-text);
+  margin-top: 0.3rem;
+}
+
+.acct-page .acct-social {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.6rem 0;
+}
+
+.acct-page .acct-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-sub-light);
+  font-size: 1.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-light);
+}
+
+.acct-page .acct-social a:hover {
+  background: var(--color-sub);
+  color: var(--color-white);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(63, 65, 86, 0.25);
+}
+
+.acct-page .acct-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2.4rem;
+  padding: 1.4rem 0;
+  border-top: 1px solid var(--color-light);
+  margin-top: 0.8rem;
+}
+
+.acct-page .acct-stat {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  transition: opacity 0.2s;
+}
+
+.acct-page .acct-stat:hover {
+  opacity: 0.75;
+}
+
+.acct-page .acct-stat-num {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-sub);
+  line-height: 1;
+}
+
+.acct-page .acct-stat-label {
+  font-size: 1.1rem;
+  color: var(--color-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.acct-page .acct-edit-btn {
+  display: inline-block;
+  margin-top: 1.4rem;
+  padding: 0.7rem 2.8rem;
+  border-radius: 999px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-main);
+  border: 2px solid var(--color-main);
+  background: transparent;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.acct-page .acct-edit-btn:hover {
+  background: var(--color-main);
+  color: #fff;
+}
+
+/* ── Right Column ── */
+.acct-page .acct-about {
+  font-size: 1.4rem;
+  line-height: 1.7;
+  color: var(--color-text);
+  text-align: justify;
+}
+
+/* ── Section Blocks ── */
+.acct-page .acct-section {
+  background: var(--color-white);
+  border-radius: 1rem;
+  border: 1px solid var(--color-light);
+  padding: 1.6rem 2rem;
+  margin-bottom: 1.6rem;
+}
+
+.acct-page .acct-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.acct-page .acct-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.acct-page .acct-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.6rem;
+  border-radius: 999px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-main);
+  background: var(--color-main-light);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.acct-page .acct-add-btn:hover {
+  background: var(--color-main);
+  color: #fff;
+}
+
+/* ── Item Rows ── */
+.acct-page .acct-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 0;
+}
+
+.acct-page .acct-item:not(:last-child) {
+  border-bottom: 1px solid var(--color-light);
+}
+
+.acct-page .acct-item-thumb {
+  width: 8rem;
+  min-width: 8rem;
+  height: 5.6rem;
+  border-radius: 0.6rem;
+  object-fit: cover;
+}
+
+.acct-page .acct-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.acct-page .acct-item-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-sub);
+  text-decoration: none;
+  display: block;
+}
+
+.acct-page .acct-item-name:hover {
+  color: var(--color-main);
+}
+
+.acct-page .acct-item-desc {
+  font-size: 1.25rem;
+  color: var(--color-text);
+  margin-top: 0.2rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.acct-page .acct-item-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.acct-page .acct-btn {
+  padding: 0.5rem 1.4rem;
+  border-radius: 999px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.acct-page .acct-btn--edit {
+  color: var(--color-sub);
+  background: var(--color-bg);
+  border: 1px solid var(--color-light);
+}
+
+.acct-page .acct-btn--edit:hover {
+  background: var(--color-sub);
+  color: var(--color-white);
+  border-color: var(--color-sub);
+}
+
+.acct-page .acct-btn--delete {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+.acct-page .acct-btn--delete:hover {
+  background: var(--color-error);
+  color: #fff;
+}
+
+.acct-page .acct-btn--accept {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.acct-page .acct-btn--accept:hover {
+  background: var(--color-success);
+  color: #fff;
+}
+
+.acct-page .acct-btn--decline {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+.acct-page .acct-btn--decline:hover {
+  background: var(--color-error);
+  color: #fff;
+}
+
+/* ── Skill Tags (no-description skills) ── */
+.acct-page .acct-skill-tag {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-sub);
+}
+
+/* ── Empty State ── */
+.acct-page .acct-empty {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--color-gray);
+  font-size: 1.3rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .acct-page .acct-profile-card {
+    position: static;
+  }
+
+  .acct-page .acct-item {
+    flex-wrap: wrap;
+  }
+
+  .acct-page .acct-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .acct-page .acct-section-header {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}

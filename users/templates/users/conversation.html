@@ -1,152 +1,87 @@
 {% extends 'main.html' %}
+{% load static %}
 
 {% block content %}
-<main style="margin:0;padding:1.5rem 0 2rem;">
-  <div style="max-width:85rem;width:95%;margin:0 auto;">
+<link rel="stylesheet" href="{% static 'styles/conversation.css' %}" />
 
-    <!-- Chat Panel -->
-    <div style="
-      display:flex;flex-direction:column;
-      height:calc(100vh - 6.8rem - 3.5rem);
-      border:2px solid var(--color-light,#e5e7eb);
-      border-radius:1.6rem;
-      overflow:hidden;background:#fff;
-      box-shadow:0 4px 24px rgba(0,0,0,0.07);
-    ">
+<main class="conv-page">
+  <div class="conv-wrapper">
+    <div class="conv-panel">
 
-      <!-- ── Header ── -->
-      <div style="
-        display:flex;align-items:center;gap:1.4rem;
-        padding:1.2rem 2rem;
-        background:#fff;
-        border-bottom:2px solid var(--color-light,#e5e7eb);
-        flex-shrink:0;
-      ">
-        <a href="{% url 'inbox' %}" style="
-          display:inline-flex;align-items:center;justify-content:center;
-          width:3.6rem;height:3.6rem;border-radius:50%;
-          background:#f0f2f1;color:#2d2d39;
-          font-size:2.2rem;font-weight:bold;text-decoration:none;flex-shrink:0;
-          transition:background 0.15s;
-        " onmouseover="this.style.background='#e0e3e1'" onmouseout="this.style.background='#f0f2f1'">&lsaquo;</a>
+      <!-- Header -->
+      <div class="conv-header">
+        <a href="{% url 'inbox' %}" class="conv-back">
+          <i class="fas fa-arrow-left"></i>
+        </a>
 
         {% if other %}
-        <a href="{% url 'user-profile' other.id %}" style="display:flex;align-items:center;gap:1.2rem;text-decoration:none;color:inherit;flex:1;min-width:0;">
-          <img
-            src="{{ other.imageURL }}"
-            alt="{{ other.name }}"
-            style="width:4rem;height:4rem;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--color-light,#e5e7eb);"
-          />
+        <a href="{% url 'user-profile' other.id %}" class="conv-user-link">
+          <img class="conv-user-avatar" src="{{ other.imageURL }}" alt="{{ other.name }}" />
           <div style="min-width:0;">
-            <div style="font-weight:700;font-size:1.5rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#2d2d39;">
-              {{ other.name|default:other.username }}
-            </div>
+            <div class="conv-user-name">{{ other.name|default:other.username }}</div>
             {% if other.short_intro %}
-            <div style="font-size:1.15rem;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-              {{ other.short_intro }}
-            </div>
+            <div class="conv-user-intro">{{ other.short_intro }}</div>
             {% endif %}
           </div>
         </a>
         {% endif %}
       </div>
 
-      <!-- ── Messages ── -->
-      <div id="thread-messages" style="
-        flex:1;overflow-y:auto;
-        display:flex;flex-direction:column;gap:1.2rem;
-        padding:2rem 2.4rem;
-        background:#f8f9fa;
-      ">
+      <!-- Messages -->
+      <div id="thread-messages" class="conv-messages">
         {% for msg in thread_messages %}
 
         {% if msg.sender.id == profile.id %}
-        <!-- Own message — right -->
-        <div style="display:flex;justify-content:flex-end;">
-          <div style="
-            max-width:62%;background:#2d2d39;color:#fff;
-            border-radius:1.6rem 1.6rem 0.3rem 1.6rem;
-            padding:1rem 1.5rem;word-break:break-word;
-          ">
-            <p style="margin:0;font-size:1.4rem;line-height:1.55;">{{ msg.body|linebreaksbr }}</p>
-            <p style="margin:0.4rem 0 0;font-size:1rem;opacity:0.6;text-align:right;">{{ msg.created|date:"M d, g:i a" }}</p>
+        <div class="conv-bubble-row conv-bubble-row--own">
+          <div class="conv-bubble conv-bubble--own">
+            <p>{{ msg.body|linebreaksbr }}</p>
+            <p class="conv-bubble-time">{{ msg.created|date:"M d, g:i a" }}</p>
           </div>
         </div>
 
         {% else %}
-        <!-- Other user — left -->
-        <div style="display:flex;align-items:flex-end;gap:0.9rem;">
+        <div class="conv-bubble-row conv-bubble-row--other">
           {% if msg.sender %}
-          <img
-            src="{{ msg.sender.imageURL }}"
-            alt="{{ msg.sender.name }}"
-            style="width:3rem;height:3rem;border-radius:50%;object-fit:cover;flex-shrink:0;"
-          />
+          <img class="conv-bubble-avatar" src="{{ msg.sender.imageURL }}" alt="{{ msg.sender.name }}" />
           {% else %}
-          <div style="width:3rem;height:3rem;border-radius:50%;background:#94a69e;flex-shrink:0;"></div>
+          <div class="conv-bubble-avatar" style="background:var(--color-gray);"></div>
           {% endif %}
-          <div style="
-            max-width:62%;background:#fff;color:#2d2d39;
-            border-radius:1.6rem 1.6rem 1.6rem 0.3rem;
-            padding:1rem 1.5rem;word-break:break-word;
-            border:1px solid var(--color-light,#e5e7eb);
-          ">
-            <p style="margin:0;font-size:1.4rem;line-height:1.55;">{{ msg.body|linebreaksbr }}</p>
-            <p style="margin:0.4rem 0 0;font-size:1rem;color:#aaa;text-align:right;">{{ msg.created|date:"M d, g:i a" }}</p>
+          <div class="conv-bubble conv-bubble--other">
+            <p>{{ msg.body|linebreaksbr }}</p>
+            <p class="conv-bubble-time">{{ msg.created|date:"M d, g:i a" }}</p>
           </div>
         </div>
         {% endif %}
 
         {% empty %}
-        <div style="flex:1;display:flex;align-items:center;justify-content:center;">
-          <p style="color:#aaa;font-size:1.4rem;">No messages yet — say hello!</p>
+        <div class="conv-empty">
+          <p>No messages yet — say hello!</p>
         </div>
         {% endfor %}
       </div>
 
-      <!-- ── Reply Bar ── -->
-      <div style="
-        flex-shrink:0;
-        padding:1.2rem 2rem;
-        background:#fff;
-        border-top:2px solid var(--color-light,#e5e7eb);
-      ">
-        <form method="POST" style="display:flex;align-items:flex-end;gap:1rem;">
+      <!-- Reply Bar -->
+      <div class="conv-reply">
+        <form method="POST" class="conv-reply-form">
           {% csrf_token %}
-          <div style="flex:1;">
+          <div class="conv-reply-input">
             <textarea
               id="reply-body"
               name="body"
               rows="2"
-              placeholder="Write a message…"
-              style="
-                display:block;width:100%;box-sizing:border-box;
-                padding:1rem 1.4rem;
-                border:2px solid var(--color-light,#e5e7eb);border-radius:1.2rem;
-                font-size:1.4rem;font-family:inherit;line-height:1.5;
-                resize:none;background:#f8f9fa;color:#2d2d39;
-                outline:none;transition:border-color 0.15s;
-              "
-              onfocus="this.style.borderColor='#2d2d39'" onblur="this.style.borderColor='var(--color-light,#e5e7eb)'"
-              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.closest('form').submit();}"
+              placeholder="Write a message..."
             ></textarea>
-            <p id="ghost-hint-reply" style="display:none;font-size:1.15rem;color:#888;margin:0.3rem 0 0 0.2rem;">
-              <kbd style="background:#eee;border:1px solid #ccc;border-radius:3px;padding:1px 5px;font-size:1rem;">Tab</kbd>
-              to accept: <span id="ghost-suggestion-reply" style="color:#333;font-style:italic;"></span>
+            <p id="ghost-hint-reply" style="display:none;" class="conv-hint">
+              <kbd style="background:var(--color-bg);border:1px solid var(--color-light);border-radius:3px;padding:1px 5px;font-size:1rem;">Tab</kbd>
+              to accept: <span id="ghost-suggestion-reply" style="color:var(--color-sub);font-style:italic;"></span>
             </p>
           </div>
-          <button type="submit" class="btn btn--sub" style="
-            flex-shrink:0;padding:1rem 2.2rem;
-            border-radius:1.2rem;border:none;cursor:pointer;
-            font-size:1.4rem;line-height:1;height:fit-content;
-          ">Send</button>
+          <button type="submit" class="conv-send-btn">Send</button>
         </form>
-        <p style="font-size:1.1rem;color:#bbb;margin:0.4rem 0 0;padding-left:0.2rem;">
-          Enter to send &middot; Shift+Enter for new line
-        </p>
+        <p class="conv-hint">Enter to send &middot; Shift+Enter for new line</p>
       </div>
 
-    </div><!-- /chat panel -->
+    </div>
   </div>
 </main>
 
@@ -166,9 +101,9 @@
   }
 
   let debounceTimer;
-  const textarea   = document.getElementById('reply-body');
-  const hint       = document.getElementById('ghost-hint-reply');
-  const hintSpan   = document.getElementById('ghost-suggestion-reply');
+  const textarea = document.getElementById('reply-body');
+  const hint = document.getElementById('ghost-hint-reply');
+  const hintSpan = document.getElementById('ghost-suggestion-reply');
   let currentSuggestion = '';
   let baseText = '';
 
@@ -194,7 +129,6 @@
 
   if (textarea) {
     textarea.addEventListener('keydown', (e) => {
-      // Enter submits (unless suggestion showing — dismiss first)
       if (e.key === 'Enter' && !e.shiftKey && !currentSuggestion) {
         e.preventDefault();
         textarea.closest('form').submit();

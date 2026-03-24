@@ -590,6 +590,25 @@ img {
   gap: 1.5rem;
 }
 
+.dev__social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background-color: var(--color-sub);
+  color: var(--color-white);
+  font-size: 1.6rem;
+  text-decoration: none;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.dev__social a:hover {
+  background-color: var(--color-main);
+  transform: translateY(-2px);
+}
+
 .devInfo {
   margin-bottom: 3rem;
 }

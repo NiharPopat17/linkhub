@@ -1,0 +1,251 @@
+/* user-profile.css — Scoped under .up-page so it won't affect other pages */
+
+.up-page {
+  padding: 3rem 0;
+}
+
+/* ── Profile Card ── */
+.up-page .up-profile-card {
+  background: var(--color-white);
+  border-radius: 1.2rem;
+  overflow: hidden;
+  border: 1px solid var(--color-light);
+  position: sticky;
+  top: 2rem;
+}
+
+.up-page .up-profile-body {
+  padding: 2.4rem;
+  text-align: center;
+}
+
+.up-page .up-avatar {
+  width: 9rem;
+  height: 9rem;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.up-page .up-name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-top: 1rem;
+  line-height: 1.3;
+}
+
+.up-page .up-title {
+  font-size: 1.3rem;
+  color: var(--color-text);
+  margin-top: 0.3rem;
+}
+
+.up-page .up-views {
+  font-size: 1.15rem;
+  color: var(--color-gray);
+  margin-top: 0.6rem;
+}
+
+.up-page .up-social {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.6rem 0;
+}
+
+.up-page .up-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-sub-light);
+  font-size: 1.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-light);
+}
+
+.up-page .up-social a:hover {
+  background: var(--color-sub);
+  color: var(--color-white);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(63, 65, 86, 0.25);
+}
+
+.up-page .up-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.4rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--color-light);
+}
+
+.up-page .up-btn {
+  padding: 0.7rem 2rem;
+  border-radius: 999px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.up-page .up-btn--follow {
+  background: var(--color-main);
+  color: #fff;
+  border: 2px solid var(--color-main);
+}
+
+.up-page .up-btn--follow:hover {
+  background: #4a95a8;
+  border-color: #4a95a8;
+}
+
+.up-page .up-btn--unfollow {
+  background: transparent;
+  color: var(--color-main);
+  border: 2px solid var(--color-main);
+}
+
+.up-page .up-btn--unfollow:hover {
+  background: var(--color-main);
+  color: #fff;
+}
+
+.up-page .up-btn--message {
+  background: transparent;
+  color: var(--color-sub);
+  border: 2px solid var(--color-light);
+}
+
+.up-page .up-btn--message:hover {
+  border-color: var(--color-sub);
+  background: var(--color-sub);
+  color: #fff;
+}
+
+/* ── Sections ── */
+.up-page .up-section {
+  background: var(--color-white);
+  border-radius: 1rem;
+  border: 1px solid var(--color-light);
+  padding: 1.6rem 2rem;
+  margin-bottom: 1.6rem;
+}
+
+.up-page .up-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 1rem;
+}
+
+.up-page .up-about {
+  font-size: 1.4rem;
+  line-height: 1.7;
+  color: var(--color-text);
+  text-align: justify;
+}
+
+/* ── Skills ── */
+.up-page .up-skill {
+  margin-bottom: 1.4rem;
+}
+
+.up-page .up-skill:last-child {
+  margin-bottom: 0;
+}
+
+.up-page .up-skill-name {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-sub);
+}
+
+.up-page .up-skill-desc {
+  font-size: 1.25rem;
+  color: var(--color-text);
+  margin-top: 0.2rem;
+  line-height: 1.6;
+}
+
+.up-page .up-other-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-light);
+}
+
+.up-page .up-skill-tag {
+  padding: 0.4rem 1.2rem;
+  border-radius: 999px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-light);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--color-sub-light);
+}
+
+/* ── Item Rows (Projects / Collaborations) ── */
+.up-page .up-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 0;
+}
+
+.up-page .up-item:not(:last-child) {
+  border-bottom: 1px solid var(--color-light);
+}
+
+.up-page .up-item-thumb {
+  width: 8rem;
+  min-width: 8rem;
+  height: 5.6rem;
+  border-radius: 0.6rem;
+  object-fit: cover;
+}
+
+.up-page .up-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.up-page .up-item-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-sub);
+  text-decoration: none;
+  display: block;
+}
+
+.up-page .up-item-name:hover {
+  color: var(--color-main);
+}
+
+.up-page .up-item-desc {
+  font-size: 1.25rem;
+  color: var(--color-text);
+  margin-top: 0.2rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .up-page .up-profile-card {
+    position: static;
+  }
+
+  .up-page .up-item {
+    flex-wrap: wrap;
+  }
+}

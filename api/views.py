@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .serializers import ProjectSerializer
 from projects.models import Project, Review, Tag
@@ -73,6 +74,7 @@ def removeTag(request):
 
 
 @api_view(['GET'])
+@authentication_classes([SessionAuthentication])
 def searchUsers(request):
     """Return up to 8 matching usernames for autocomplete."""
     query = request.GET.get('q', '').strip()
@@ -81,9 +83,13 @@ def searchUsers(request):
     from users.models import Profile
     profiles = Profile.objects.filter(
         user__username__icontains=query
-    ).exclude(user__isnull=True).select_related('user')[:8]
+    ).exclude(user__isnull=True).select_related('user')
+    if request.user.is_authenticated:
+        profiles = profiles.exclude(user=request.user)
+    profiles = profiles[:8]
     results = [
         {
+            'id': str(p.id),
             'username': p.user.username,
             'name': p.name or p.user.username,
             'image': p.imageURL,

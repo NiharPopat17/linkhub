@@ -110,7 +110,7 @@ def createProject(request):
                 project.tags.add(tag)   
             return redirect('account')
 
-    context = {'form': form}
+    context = {'form': form, 'is_update': False}
     return render(request, 'projects/project_form.html', context)
 
 @login_required(login_url='login')
@@ -130,10 +130,10 @@ def updateProject(request, pk):
             project.save()
             for tag in newtags:
                 tag, created = Tag.objects.get_or_create(name=tag)
-                project.tags.add(tag)   
+                project.tags.add(tag)
             return redirect('account')
 
-    context = {'form': form, 'project': project}
+    context = {'form': form, 'project': project, 'is_update': True}
     return render(request, 'projects/project_form.html', context)
 
 @login_required(login_url='login')

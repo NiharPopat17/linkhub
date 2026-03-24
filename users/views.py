@@ -166,7 +166,7 @@ def createSkill(request):
             skill.save()
             messages.success(request, 'Skill was added successfully!')
             return redirect('account')  
-    context = {'form': form}
+    context = {'form': form, 'is_update': False}
     return render(request, 'users/skill_form.html', context)
 
 @login_required(login_url='login')
@@ -182,7 +182,7 @@ def updateSkill(request, pk):
             messages.success(request, 'Skill was updated successfully!')
             return redirect('account')
 
-    context = {'form': form}
+    context = {'form': form, 'is_update': True}
     return render(request, 'users/skill_form.html', context)
 
 
@@ -206,8 +206,10 @@ def inbox(request):
 
     conv_data = []
     for conv in convs:
-        other = conv.participants.exclude(id=profile.id).first()
         last_msg = conv.message_set.order_by('-created').first()
+        if not last_msg:
+            continue
+        other = conv.participants.exclude(id=profile.id).first()
         unread_count = conv.message_set.filter(recipient=profile, is_read=False).count()
         conv_data.append({
             'conv': conv,
@@ -313,41 +315,29 @@ def toggleBookmark(request, pk):
 
 def createMessage(request, pk):
     recipient = Profile.objects.get(id=pk)
-    form = MessageForm()
-    try:
-        sender = request.user.profile
-    except Exception:
-        sender = None
 
+    if request.user.is_authenticated:
+        sender = request.user.profile
+        existing = Conversation.objects.filter(
+            participants=sender).filter(participants=recipient)
+        if existing.exists():
+            conv = existing.first()
+            return redirect('conversation', pk=conv.id)
+        else:
+            conv = Conversation.objects.create()
+            conv.participants.add(sender, recipient)
+            return redirect('conversation', pk=conv.id)
+
+    form = MessageForm()
     if request.method == 'POST':
         form = MessageForm(request.POST)
         if form.is_valid():
             message = form.save(commit=False)
-            message.sender = sender
+            message.sender = None
             message.recipient = recipient
-
-            if sender:
-                message.name = sender.name
-                message.email = sender.email
-
-                existing = Conversation.objects.filter(
-                    participants=sender).filter(participants=recipient)
-                if existing.exists():
-                    conv = existing.first()
-                else:
-                    conv = Conversation.objects.create()
-                    conv.participants.add(sender, recipient)
-
-                message.conversation = conv
-                message.save()
-                conv.save()
-
-                messages.success(request, 'Your message was successfully sent!')
-                return redirect('conversation', pk=conv.id)
-            else:
-                message.save()
-                messages.success(request, 'Your message was successfully sent!')
-                return redirect('user-profile', pk=recipient.id)
+            message.save()
+            messages.success(request, 'Your message was successfully sent!')
+            return redirect('user-profile', pk=recipient.id)
 
     context = {'recipient': recipient, 'form': form}
     return render(request, 'users/message_form.html', context)

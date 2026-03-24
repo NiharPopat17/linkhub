@@ -1,0 +1,174 @@
+/* form-page.css — Modern form pages, scoped under .fp so it won't affect other pages */
+
+.fp {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: var(--color-bg);
+}
+
+.fp-card {
+  width: 100%;
+  max-width: 42rem;
+  background: var(--color-white);
+  border-radius: 1.2rem;
+  border: 1px solid var(--color-light);
+  padding: 2.4rem 3rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* Back link */
+.fp-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-gray);
+  text-decoration: none;
+  transition: color 0.2s;
+  margin-bottom: 1.4rem;
+}
+
+.fp-back:hover {
+  color: var(--color-sub);
+}
+
+.fp-back i {
+  font-size: 1.1rem;
+}
+
+/* Header */
+.fp-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 0.3rem;
+}
+
+.fp-subtext {
+  font-size: 1.2rem;
+  color: var(--color-gray);
+  margin-bottom: 1.6rem;
+}
+
+/* Divider */
+.fp-divider {
+  border: none;
+  border-top: 1px solid var(--color-light);
+  margin: 0 0 1.6rem;
+}
+
+/* Form fields */
+.fp-field {
+  margin-bottom: 1.4rem;
+}
+
+.fp-label {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-sub);
+  margin-bottom: 0.6rem;
+}
+
+.fp-card input[type="text"],
+.fp-card input[type="email"],
+.fp-card input[type="password"],
+.fp-card input[type="number"],
+.fp-card input[type="url"],
+.fp-card select,
+.fp-card textarea {
+  width: 100%;
+  padding: 1.1rem 1.4rem;
+  border: 2px solid var(--color-light);
+  border-radius: 0.7rem;
+  background: var(--color-bg);
+  font-size: 1.4rem;
+  font-family: inherit;
+  color: var(--color-sub);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fp-card input:focus,
+.fp-card select:focus,
+.fp-card textarea:focus {
+  outline: none;
+  border-color: var(--color-main);
+  box-shadow: 0 0 0 3px rgba(90, 165, 185, 0.12);
+}
+
+.fp-card textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.fp-card input[type="file"] {
+  font-size: 1.3rem;
+  color: var(--color-text);
+}
+
+/* Actions row */
+.fp-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.8rem;
+}
+
+.fp-submit {
+  padding: 1rem 3rem;
+  border-radius: 999px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: var(--color-main);
+  color: #fff;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.fp-submit:hover {
+  background: #4a95a8;
+  transform: translateY(-1px);
+}
+
+.fp-submit:active {
+  transform: scale(0.98);
+}
+
+.fp-cancel {
+  padding: 1rem 2.4rem;
+  border-radius: 999px;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--color-gray);
+  background: transparent;
+  text-decoration: none;
+  border: 2px solid var(--color-light);
+  transition: all 0.2s ease;
+}
+
+.fp-cancel:hover {
+  border-color: var(--color-sub);
+  color: var(--color-sub);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .fp-card {
+    padding: 2.4rem 2rem;
+  }
+
+  .fp-actions {
+    flex-direction: column;
+  }
+
+  .fp-submit,
+  .fp-cancel {
+    width: 100%;
+    text-align: center;
+  }
+}
