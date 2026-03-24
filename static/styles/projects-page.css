@@ -1,0 +1,249 @@
+/* projects-page.css — Scoped under .proj-page */
+
+.proj-page {
+  padding: 2rem 0 3rem;
+}
+
+.proj-wrapper {
+  max-width: 80rem;
+  width: 95%;
+  margin: 0 auto;
+}
+
+/* ── Search Header ── */
+.proj-search-section {
+  background: var(--color-white);
+  border: 1px solid var(--color-light);
+  border-radius: 1.2rem;
+  padding: 2.4rem 2.8rem;
+  margin-bottom: 2rem;
+}
+
+.proj-search-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 1.2rem;
+}
+
+.proj-search-title span {
+  color: var(--color-main);
+}
+
+.proj-search-form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.proj-search-input {
+  flex: 1;
+  padding: 0.9rem 1.4rem;
+  border: 2px solid var(--color-light);
+  border-radius: 0.8rem;
+  font-size: 1.3rem;
+  font-family: inherit;
+  color: var(--color-sub);
+  background: var(--color-bg);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.proj-search-input::placeholder {
+  color: var(--color-gray);
+}
+
+.proj-search-input:focus {
+  border-color: var(--color-main);
+}
+
+.proj-search-btn {
+  padding: 0.9rem 2.4rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: var(--color-main);
+  color: #fff;
+  transition: background 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.proj-search-btn:hover {
+  background: #4a95a8;
+}
+
+.proj-search-btn:active {
+  transform: scale(0.97);
+}
+
+/* ── Projects Grid ── */
+.proj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
+  gap: 1.6rem;
+}
+
+/* ── Project Card ── */
+.proj-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-light);
+  border-radius: 1.2rem;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.proj-card:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+}
+
+.proj-card-img {
+  width: 100%;
+  height: 18rem;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  border-bottom: 1px solid var(--color-light);
+}
+
+.proj-card-body {
+  padding: 1.4rem 1.6rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.proj-card-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.proj-card-author {
+  font-size: 1.15rem;
+  color: var(--color-gray);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.proj-card-author:hover {
+  color: var(--color-main);
+}
+
+.proj-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  font-size: 1.1rem;
+  color: var(--color-gray);
+  margin-top: 0.2rem;
+}
+
+.proj-card-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.proj-card-rating i {
+  color: #f5a623;
+  font-size: 1.1rem;
+}
+
+.proj-card-rating strong {
+  color: var(--color-sub);
+  font-weight: 600;
+}
+
+.proj-card-views {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.proj-card-views i {
+  font-size: 1rem;
+}
+
+/* ── Tags ── */
+.proj-card-tags {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.6rem;
+  scrollbar-width: none;
+}
+
+.proj-card-tags::-webkit-scrollbar {
+  display: none;
+}
+
+.proj-tag {
+  display: inline-block;
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: var(--color-main-light);
+  color: var(--color-main);
+  border: 1px solid transparent;
+  transition: background 0.2s;
+}
+
+/* ── Empty State ── */
+.proj-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-gray);
+  font-size: 1.4rem;
+  grid-column: 1 / -1;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .proj-search-section {
+    padding: 1.6rem 1.4rem;
+  }
+
+  .proj-search-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .proj-search-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .proj-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .proj-card-img {
+    height: 16rem;
+  }
+}
+
+@media (min-width: 701px) and (max-width: 1000px) {
+  .proj-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.db.models import Q, F
-from .models import Project, Tag, CollaborationInvite
-from .forms import ProjectForm, ReviewForm
+from .models import Project, Tag, CollaborationInvite, Review, ProjectComment
+from .forms import ProjectForm
 from django.contrib.auth.decorators import login_required
 from .utils import searchProjects, paginateProjects
 from django.contrib import messages
@@ -26,7 +26,7 @@ def projects(request):
     }
     return render(request, 'projects/projects.html', context)
 
-def project(request,pk):
+def project(request, pk):
     projectObj = Project.objects.get(id=pk)
     is_owner = request.user.is_authenticated and request.user.profile == projectObj.owner
     if not is_owner:
@@ -37,28 +37,95 @@ def project(request,pk):
             request.session['viewed_projects'] = viewed_projects
         projectObj.refresh_from_db()
     show_views = not is_owner
-    form = ReviewForm()
-    if request.method == 'POST':
-        if not request.user.is_authenticated:
-            messages.warning(request, 'You must be logged in to leave a review.')
-            return redirect('login')
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            # Prevent duplicate reviews
-            if request.user.profile.id in projectObj.reviewers:
-                messages.warning(request, 'You have already reviewed this project!')
-                return redirect('project', pk=projectObj.id)
-            review = form.save(commit=False)
-            review.owner = request.user.profile
-            review.project = projectObj
-            review.save()
-            projectObj.getVoteCount()
-            messages.success(request, 'Your review was added successfully!')
-            return redirect('project', pk=projectObj.id)    
+
+    user_vote = None
+    if request.user.is_authenticated:
+        existing = Review.objects.filter(owner=request.user.profile, project=projectObj).first()
+        if existing:
+            user_vote = existing.value
+
     is_bookmarked = False
     if request.user.is_authenticated:
         is_bookmarked = request.user.profile.bookmarks.filter(id=pk).exists()
-    return render(request, 'projects/single-project.html', {'project': projectObj, 'form': form, 'show_views': show_views, 'is_bookmarked': is_bookmarked})
+
+    comments = projectObj.comments.select_related('owner').order_by('-created')
+
+    return render(request, 'projects/single-project.html', {
+        'project': projectObj,
+        'show_views': show_views,
+        'is_bookmarked': is_bookmarked,
+        'user_vote': user_vote,
+        'comments': comments,
+    })
+
+
+@login_required(login_url='login')
+def voteProject(request, pk):
+    """POST-only. Toggle or change vote on a project."""
+    projectObj = get_object_or_404(Project, id=pk)
+
+    if request.user.profile == projectObj.owner:
+        messages.error(request, 'You cannot vote on your own project.')
+        return redirect('project', pk=pk)
+
+    if request.method == 'POST':
+        value = request.POST.get('value', '')
+        if value not in ('up', 'down'):
+            messages.error(request, 'Invalid vote.')
+            return redirect('project', pk=pk)
+
+        review, created = Review.objects.get_or_create(
+            owner=request.user.profile,
+            project=projectObj,
+            defaults={'value': value}
+        )
+        if not created:
+            if review.value == value:
+                review.delete()
+            else:
+                review.value = value
+                review.save()
+
+        projectObj.getVoteCount()
+
+    return redirect('project', pk=pk)
+
+
+@login_required(login_url='login')
+def commentProject(request, pk):
+    """POST-only. Add a comment to a project."""
+    projectObj = get_object_or_404(Project, id=pk)
+
+    if request.method == 'POST':
+        body = request.POST.get('body', '').strip()
+        if body:
+            ProjectComment.objects.create(
+                owner=request.user.profile,
+                project=projectObj,
+                body=body,
+            )
+            messages.success(request, 'Comment added.')
+        else:
+            messages.warning(request, 'Comment cannot be empty.')
+
+    return redirect('project', pk=pk)
+
+
+@login_required(login_url='login')
+def deleteComment(request, pk):
+    """POST-only. Project owner deletes a comment."""
+    comment = get_object_or_404(ProjectComment, id=pk)
+    project_pk = comment.project.id
+
+    if request.user.profile != comment.project.owner:
+        messages.error(request, 'Only the project owner can delete comments.')
+        return redirect('project', pk=project_pk)
+
+    if request.method == 'POST':
+        comment.delete()
+        messages.success(request, 'Comment deleted.')
+
+    return redirect('project', pk=project_pk)
 
 @login_required(login_url='login')
 def savedProjects(request):
@@ -231,3 +298,20 @@ def respondToInvite(request, pk):
             messages.error(request, 'Invalid action.')
     
     return redirect('account')
+
+
+@login_required(login_url='login')
+def removeCollaborator(request, pk, collab_id):
+    """POST-only. Project owner removes a collaborator."""
+    project = get_object_or_404(Project, id=pk)
+
+    if request.user.profile != project.owner:
+        messages.error(request, 'Only the project owner can remove collaborators.')
+        return redirect('project', pk=pk)
+
+    if request.method == 'POST':
+        collaborator = get_object_or_404(Profile, id=collab_id)
+        project.collaborators.remove(collaborator)
+        messages.success(request, f'{collaborator.name or collaborator.username} has been removed from the project.')
+
+    return redirect('project', pk=pk)

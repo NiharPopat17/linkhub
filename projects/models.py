@@ -35,8 +35,11 @@ class Project(models.Model):
 
     @property
     def reviewers(self):
-        queryset = self.review_set.all().values_list('owner__id', flat=True)
-        return queryset 
+        return self.review_set.all().values_list('owner__id', flat=True)
+
+    @property
+    def voters(self):
+        return self.review_set.filter(value__isnull=False).exclude(value='').values_list('owner__id', flat=True) 
     
     @property
     def imageURL(self):
@@ -67,13 +70,27 @@ class Review(models.Model):
     body = models.TextField(null=True, blank=True)
     value = models.CharField(max_length=200, null=True, blank=True, choices=VOTE_TYPE)
     created = models.DateTimeField(auto_now_add=True)
-    id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True,editable=False)
+    id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
 
     class Meta:
         unique_together = [['owner', 'project']]
 
     def __str__(self):
-        return self.value
+        return self.value or 'No vote'
+
+
+class ProjectComment(models.Model):
+    owner = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='comments')
+    body = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
+
+    class Meta:
+        ordering = ['-created']
+
+    def __str__(self):
+        return f'{self.owner} on {self.project} - {self.body[:50]}'
 
 
 @receiver(post_save, sender=Review)

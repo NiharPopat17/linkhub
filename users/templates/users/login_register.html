@@ -1,83 +1,69 @@
 {% extends 'main.html' %}
 {% load static %}
 {% block content %}
+<link rel="stylesheet" href="{% static 'styles/auth.css' %}" />
 
 {% if page == 'register' %}
-<div class="auth">
-    <div class="card">
-        <div class="auth__header text-center">
-            <a>
-                <img src="{% static 'images/icon.svg' %}" alt="icon" />
-            </a>
-            <h3>Register an Account</h3>
-            <p>Create a new developer account</p>
-        </div>
-
-        <form method="POST" action="{% url 'register' %}" class="form auth__form">
-            {% csrf_token %}
-
-            {% for field in form %}
-            <div class="form__field">
-                <label for="formInput#text">{{field.label}}</label>
-                {{field}}
-
-                {% for error in field.errors %}
-                <p style="color: red;">{{error}}</p>
-                {% endfor %}
-
-            </div>
-
-            {% endfor %}
-
-            <div class="auth__actions">
-                <input class="btn btn--sub btn--lg" type="submit" value="Sign Up" />
-            </div>
-        </form>
-        <div class="auth__alternative">
-            <p>Already have an Account?</p>
-            <a href="{% url 'login' %}">Log In</a>
-        </div>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-card__header">
+      <h2 class="auth-card__title">Create an Account</h2>
+      <p class="auth-card__subtitle">Join the developer community</p>
     </div>
+
+    <form method="POST" action="{% url 'register' %}" class="auth-form">
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="auth-form__field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% for error in field.errors %}
+        <p class="auth-form__error">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="auth-form__btn">Sign Up</button>
+    </form>
+
+    <div class="auth-card__footer">
+      <p>Already have an account? <a href="{% url 'login' %}">Log In</a></p>
+    </div>
+  </div>
 </div>
 
 {% else %}
-<div class="auth">
-
-    <div class="card">
-
-        <div class="auth__header text-center">
-            <a> <img src="{% static 'images/icon.svg' %}" alt="icon" /></a>
-            <h3>Account Login</h3>
-            <p>Hello Developer, Welcome Back!</p>
-        </div>
-
-        <form action="" method="POST" class="form auth__form">
-            {% csrf_token %}
-            <!-- Input:Username-->
-            <div class="form__field">
-                <label for="formInput#text">Username: </label>
-                <input class="input input--text" id="formInput#text" type="text" name="username"
-                    placeholder="Enter your username..." />
-            </div>
-
-            <!-- Input:Password -->
-            <div class="form__field">
-                <label for="formInput#password">Password: </label>
-                <input class="input input--password" id="formInput#passowrd" type="password" name="password"
-                    placeholder="••••••••" />
-            </div>
-
-            <div class="auth__actions">
-                <input class="btn btn--sub btn--lg" type="submit" value="Log In" />
-                <a href="{% url 'reset_password' %}">Forget Password?</a>
-            </div>
-        </form>
-
-        <div class="auth__alternative">
-            <p>Don’t have an Account?</p>
-            <a href="{% url 'register' %}">Sign Up</a>
-        </div>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-card__header">
+      <h2 class="auth-card__title">Welcome Back</h2>
+      <p class="auth-card__subtitle">Log in to your account</p>
     </div>
+
+    <form action="" method="POST" class="auth-form">
+      {% csrf_token %}
+      <div class="auth-form__field">
+        <label for="formInput-username">Username</label>
+        <input class="auth-form__input" id="formInput-username" type="text" name="username" placeholder="Enter your username..." />
+      </div>
+
+      <div class="auth-form__field">
+        <label for="formInput-password">Password</label>
+        <input class="auth-form__input" id="formInput-password" type="password" name="password" placeholder="••••••••" />
+      </div>
+
+      <button type="submit" class="auth-form__btn">Log In</button>
+
+      <div class="auth-form__forgot">
+        <a href="{% url 'reset_password' %}">Forgot password?</a>
+      </div>
+    </form>
+
+    <div class="auth-card__footer">
+      <p>Don't have an account? <a href="{% url 'register' %}">Sign Up</a></p>
+    </div>
+  </div>
 </div>
 
 {% endif %}

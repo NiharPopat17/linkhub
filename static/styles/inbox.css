@@ -1,0 +1,354 @@
+/* inbox.css */
+
+.ib-page {
+  padding: 2rem 0 4rem;
+}
+
+.ib-wrapper {
+  max-width: 64rem;
+  width: 95%;
+  margin: 0 auto;
+}
+
+/* Header */
+.ib-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.8rem;
+}
+
+.ib-header__left {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.ib-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-sub);
+  font-size: 1.4rem;
+  text-decoration: none;
+  flex-shrink: 0;
+  border: 1px solid var(--color-light);
+  transition: background 0.2s, color 0.2s;
+}
+
+.ib-back:hover {
+  background: var(--color-sub);
+  color: var(--color-white);
+}
+
+.ib-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ib-new-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.6rem;
+  border-radius: 999px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--color-main);
+  color: #fff;
+  border: none;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.ib-new-btn:hover {
+  background: #4a95a8;
+}
+
+.ib-new-btn:active {
+  transform: scale(0.97);
+}
+
+/* Badge */
+.ib-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-main);
+  color: #fff;
+  border-radius: 50%;
+  min-width: 2rem;
+  height: 2rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 0 0.3rem;
+  flex-shrink: 0;
+}
+
+.ib-badge--error {
+  background: var(--color-error);
+}
+
+/* New message box */
+.ib-new-box {
+  margin-bottom: 1.6rem;
+  padding: 1.4rem 1.6rem;
+  border: 1px solid var(--color-light);
+  border-radius: 1rem;
+  background: var(--color-bg);
+}
+
+.ib-new-box__label {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-sub);
+  display: block;
+  margin-bottom: 0.6rem;
+}
+
+.ib-new-box__input-wrap {
+  position: relative;
+}
+
+.ib-new-box__input {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border: 2px solid var(--color-light);
+  border-radius: 0.7rem;
+  background: var(--color-white);
+  font-size: 1.3rem;
+  font-family: inherit;
+  color: var(--color-sub);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.ib-new-box__input:focus {
+  border-color: var(--color-main);
+}
+
+/* Suggestions dropdown */
+.ib-suggestions {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--color-white);
+  border: 1px solid var(--color-light);
+  border-top: none;
+  border-radius: 0 0 0.7rem 0.7rem;
+  max-height: 22rem;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.ib-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1.2rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--color-bg);
+}
+
+.ib-suggestion-item:hover {
+  background: var(--color-bg);
+}
+
+.ib-suggestion-item img {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.ib-suggestion-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-sub);
+}
+
+.ib-suggestion-handle {
+  font-size: 1.1rem;
+  color: var(--color-gray);
+  margin: 0;
+}
+
+.ib-suggestion-empty {
+  padding: 1rem 1.2rem;
+  color: var(--color-gray);
+  font-size: 1.2rem;
+}
+
+/* Conversation list */
+.ib-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-light);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--color-white);
+}
+
+.ib-conv {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.3rem 1.6rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+
+.ib-conv:not(:last-child) {
+  border-bottom: 1px solid var(--color-light);
+}
+
+.ib-conv:hover {
+  background: var(--color-bg);
+}
+
+.ib-conv__avatar {
+  width: 4.4rem;
+  height: 4.4rem;
+  min-width: 4.4rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.ib-conv__avatar--placeholder {
+  background: var(--color-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.ib-conv__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ib-conv__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ib-conv__name {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--color-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ib-conv--unread .ib-conv__name {
+  font-weight: 700;
+}
+
+.ib-conv__time {
+  font-size: 1.05rem;
+  color: var(--color-gray);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ib-conv__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.ib-conv__preview {
+  font-size: 1.2rem;
+  color: var(--color-gray);
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ib-conv--unread .ib-conv__preview {
+  color: var(--color-sub);
+  font-weight: 600;
+}
+
+/* Empty state */
+.ib-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 2rem;
+  background: var(--color-white);
+  border: 1px solid var(--color-light);
+  border-radius: 1rem;
+}
+
+.ib-empty__title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin: 0 0 0.6rem;
+}
+
+.ib-empty__text {
+  font-size: 1.25rem;
+  color: var(--color-gray);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .ib-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .ib-new-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ib-conv {
+    padding: 1rem 1.2rem;
+  }
+
+  .ib-conv__avatar {
+    width: 3.8rem;
+    height: 3.8rem;
+    min-width: 3.8rem;
+  }
+
+  .ib-conv__preview {
+    max-width: 18rem;
+  }
+}

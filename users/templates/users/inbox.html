@@ -2,99 +2,100 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'styles/account.css' %}" />
+<link rel="stylesheet" href="{% static 'styles/inbox.css' %}" />
 
-<main class="acct-page my-md">
-  <div class="container" style="max-width: 64rem; margin: 0 auto;">
+<main class="ib-page">
+  <div class="ib-wrapper">
 
-    <div class="acct-section">
-      <div class="acct-section-header">
-        <h3 class="acct-section-title" style="display: flex; align-items: center; gap: 0.8rem;">
+    <div class="ib-header">
+      <div class="ib-header__left">
+        <a href="{% url 'account' %}" class="ib-back">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <h2 class="ib-title">
           Messages
           {% if total_unread %}
-          <span style="display:inline-flex;align-items:center;justify-content:center;background:var(--color-error);color:#fff;border-radius:50%;min-width:2rem;height:2rem;font-size:1.1rem;font-weight:700;padding:0 0.4rem;">{{ total_unread }}</span>
+          <span class="ib-badge ib-badge--error">{{ total_unread }}</span>
           {% endif %}
-        </h3>
-        <button onclick="document.getElementById('newMsgBox').style.display = document.getElementById('newMsgBox').style.display === 'none' ? 'block' : 'none'"
-          class="acct-add-btn" style="cursor: pointer; border: none; font-family: inherit;">+ New Message</button>
+        </h2>
       </div>
-
-      <!-- New Message Box -->
-      <div id="newMsgBox" style="display: none; margin-bottom: 1.6rem; padding: 1.4rem; border: 1px solid var(--color-light); border-radius: 0.8rem; background: var(--color-bg);">
-        <label style="font-size: 1.25rem; font-weight: 600; color: var(--color-sub); display: block; margin-bottom: 0.6rem;">Send message to</label>
-        <div style="position: relative;">
-          <input type="text" id="newMsgUsername" placeholder="Search username..."
-            autocomplete="off"
-            style="width: 100%; padding: 0.9rem 1.2rem; border: 2px solid var(--color-light); border-radius: 0.7rem; background: var(--color-white); font-size: 1.3rem; font-family: inherit; color: var(--color-sub); transition: border-color 0.2s;"
-            onfocus="this.style.borderColor='var(--color-main)'" />
-          <div id="newMsgSuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--color-white); border: 1px solid var(--color-light); border-top: none; border-radius: 0 0 0.7rem 0.7rem; max-height: 22rem; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.08);"></div>
-        </div>
-      </div>
-
-      {% if conv_data %}
-      <div>
-        {% for item in conv_data %}
-        <a href="{% url 'conversation' item.conv.id %}" class="acct-item" style="text-decoration: none; color: inherit; transition: background 0.15s; border-radius: 0.6rem; padding: 1rem; margin: 0 -1rem;"
-          onmouseover="this.style.background='var(--color-bg)'" onmouseout="this.style.background='transparent'">
-
-          {% if item.other %}
-          <img src="{{ item.other.imageURL }}" alt="{{ item.other.name }}"
-            style="width: 4.4rem; height: 4.4rem; min-width: 4.4rem; border-radius: 50%; object-fit: cover;" />
-          {% else %}
-          <div style="width:4.4rem;height:4.4rem;min-width:4.4rem;border-radius:50%;background:var(--color-gray);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.8rem;">?</div>
-          {% endif %}
-
-          <div class="acct-item-body" style="gap: 0.2rem;">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <span style="font-size:1.4rem;font-weight:{% if item.unread_count %}700{% else %}600{% endif %};color:var(--color-sub);">
-                {{ item.other.name|default:item.other.username|default:"Unknown" }}
-              </span>
-              <span style="font-size:1.05rem;color:var(--color-gray);white-space:nowrap;margin-left:1rem;">
-                {% if item.last_msg %}{{ item.last_msg.created|date:"M d, g:i a" }}{% endif %}
-              </span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.2rem;">
-              <span style="font-size:1.2rem;color:{% if item.unread_count %}var(--color-sub){% else %}var(--color-gray){% endif %};font-weight:{% if item.unread_count %}600{% else %}400{% endif %};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40rem;">
-                {% if item.last_msg %}
-                  {% if item.last_msg.sender.id == profile.id %}You: {% endif %}
-                  {{ item.last_msg.body|truncatechars:60 }}
-                {% else %}
-                  <em>No messages yet</em>
-                {% endif %}
-              </span>
-              {% if item.unread_count %}
-              <span style="display:inline-flex;align-items:center;justify-content:center;background:var(--color-main);color:#fff;border-radius:50%;min-width:2rem;height:2rem;font-size:1.05rem;font-weight:700;margin-left:0.8rem;flex-shrink:0;padding:0 0.3rem;">{{ item.unread_count }}</span>
-              {% endif %}
-            </div>
-          </div>
-        </a>
-        {% endfor %}
-      </div>
-
-      {% else %}
-      <div style="text-align:center;padding:3rem 0;color:var(--color-gray);font-size:1.3rem;">
-        <p>No conversations yet.</p>
-        <p style="margin-top:0.5rem;">Use the <strong>+ New Message</strong> button above or message someone from their profile.</p>
-      </div>
-      {% endif %}
+      <button id="newMsgToggle" class="ib-new-btn">
+        <i class="fas fa-plus"></i> New Message
+      </button>
     </div>
+
+    <!-- New Message Box -->
+    <div id="newMsgBox" class="ib-new-box" style="display:none;">
+      <label class="ib-new-box__label">Send message to</label>
+      <div class="ib-new-box__input-wrap">
+        <input type="text" id="newMsgUsername" class="ib-new-box__input" placeholder="Search username..." autocomplete="off" />
+        <div id="newMsgSuggestions" class="ib-suggestions"></div>
+      </div>
+    </div>
+
+    {% if conv_data %}
+    <div class="ib-list">
+      {% for item in conv_data %}
+      <a href="{% url 'conversation' item.conv.id %}" class="ib-conv {% if item.unread_count %}ib-conv--unread{% endif %}">
+
+        {% if item.other %}
+        <img class="ib-conv__avatar" src="{{ item.other.imageURL }}" alt="{{ item.other.name }}" />
+        {% else %}
+        <div class="ib-conv__avatar ib-conv__avatar--placeholder">?</div>
+        {% endif %}
+
+        <div class="ib-conv__body">
+          <div class="ib-conv__top">
+            <span class="ib-conv__name">
+              {{ item.other.name|default:item.other.username|default:"Unknown" }}
+            </span>
+            <span class="ib-conv__time">
+              {% if item.last_msg %}{{ item.last_msg.created|date:"M d, g:i a" }}{% endif %}
+            </span>
+          </div>
+          <div class="ib-conv__bottom">
+            <span class="ib-conv__preview">
+              {% if item.last_msg %}
+                {% if item.last_msg.sender.id == profile.id %}You: {% endif %}
+                {{ item.last_msg.body|truncatechars:60 }}
+              {% else %}
+                <em>No messages yet</em>
+              {% endif %}
+            </span>
+            {% if item.unread_count %}
+            <span class="ib-badge">{{ item.unread_count }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="ib-empty">
+      <h3 class="ib-empty__title">No conversations yet</h3>
+      <p class="ib-empty__text">Use the <strong>+ New Message</strong> button above or message someone from their profile.</p>
+    </div>
+    {% endif %}
 
   </div>
 </main>
 
 <script>
+document.getElementById('newMsgToggle').addEventListener('click', function() {
+  const box = document.getElementById('newMsgBox');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+});
+
+(function() {
   const input = document.getElementById('newMsgUsername');
   const sugBox = document.getElementById('newMsgSuggestions');
   let debounceTimer;
 
-  sugBox.addEventListener('mousedown', function(e) {
-    e.preventDefault();
-  });
+  sugBox.addEventListener('mousedown', function(e) { e.preventDefault(); });
 
   document.addEventListener('click', function(e) {
-    if (!e.target.closest('#newMsgBox')) {
-      sugBox.style.display = 'none';
-    }
+    if (!e.target.closest('#newMsgBox')) sugBox.style.display = 'none';
   });
 
   input.addEventListener('input', function() {
@@ -108,28 +109,27 @@
         .then(data => {
           sugBox.innerHTML = '';
           if (!data.length) {
-            sugBox.innerHTML = '<div style="padding:1rem 1.2rem;color:var(--color-gray);font-size:1.2rem;">No users found</div>';
+            sugBox.innerHTML = '<div class="ib-suggestion-empty">No users found</div>';
             sugBox.style.display = 'block';
             return;
           }
           data.forEach(function(u) {
             const item = document.createElement('div');
-            item.style.cssText = 'display:flex;align-items:center;gap:1rem;padding:0.8rem 1.2rem;cursor:pointer;transition:background 0.15s;';
+            item.className = 'ib-suggestion-item';
             item.innerHTML =
-              '<img src="' + u.image + '" style="width:3.2rem;height:3.2rem;border-radius:50%;object-fit:cover;" />' +
-              '<div><span style="font-size:1.25rem;font-weight:600;color:var(--color-sub);">' + u.name + '</span>' +
-              '<p style="font-size:1.1rem;color:var(--color-gray);margin:0;">@' + u.username + '</p></div>';
+              '<img src="' + u.image + '" alt="' + u.name + '" />' +
+              '<div><span class="ib-suggestion-name">' + u.name + '</span>' +
+              '<p class="ib-suggestion-handle">@' + u.username + '</p></div>';
             item.addEventListener('click', function() {
               window.location.href = '/create-message/' + u.id + '/';
             });
-            item.addEventListener('mouseover', function() { this.style.background = 'var(--color-bg)'; });
-            item.addEventListener('mouseout', function() { this.style.background = 'transparent'; });
             sugBox.appendChild(item);
           });
           sugBox.style.display = 'block';
         });
     }, 250);
   });
+})();
 </script>
 
 {% endblock content %}

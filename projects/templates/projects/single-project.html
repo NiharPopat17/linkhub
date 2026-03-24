@@ -1,147 +1,201 @@
 {% extends 'main.html' %}
+{% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'styles/single-project.css' %}" />
 
-<!-- Main Section -->
-<main class="singleProject my-md">
-    <div class="container">
-        <div class="layout">
-            <div class="column column--1of3">
-                <h3 class="singleProject__subtitle">Tools & Stacks</h3>
-                <div class="singleProject__toolStack">
-                    {% for tag in project.tags.all %}
-                    <span class="tag tag--pill tag--sub tag--lg">
-                        <small>{{tag}}</small>
-                    </span>
-                    {% endfor %}
+<main class="sp">
+  <div class="sp-wrapper">
 
-                </div>
+    <div class="sp-top">
 
-                {% if project.source_link %}
-                <a class="singleProject__liveLink" href="{{project.source_link}}" target="_blank"><i
-                        class="fas fa-external-link-alt"></i>Source
-                    Code
-                </a>
-                {% endif %}
-
-                {% if project.demo_link %}
-                <a class="singleProject__liveLink" href="{{project.source_link}}" target="_blank"><i
-                        class="fas fa-external-link-alt"></i>Live Demo
-                </a>
-                {% endif %}
-
-                {% if project.collaborators.all %}
-                <h3 class="singleProject__subtitle" style="margin-top: 1.5rem;">Collaborators</h3>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    {% for collab in project.collaborators.all %}
-                    <a href="{% url 'user-profile' collab.id %}" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #333; background: #f0f0f0; padding: 6px 12px 6px 6px; border-radius: 20px; font-size: 0.85rem; transition: background 0.2s;">
-                        <img src="{{ collab.imageURL }}" alt="{{ collab.name }}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;">
-                        {{ collab.name }}
-                    </a>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                {% if request.user.is_authenticated and request.user.profile == project.owner %}
-                <div style="margin-top: 16px;">
-                    <button id="toggleInviteBtn" onclick="document.getElementById('inviteFormBox').style.display = document.getElementById('inviteFormBox').style.display === 'none' ? 'block' : 'none'" class="btn btn--sub" style="width: 100%; font-size: 0.85rem; padding: 8px 12px; cursor: pointer;">
-                        <i class="fas fa-plus"></i> Add Collaborator
-                    </button>
-                    <div id="inviteFormBox" style="display: none; margin-top: 10px; position: relative;">
-                        <form method="POST" action="{% url 'invite-collaborator' project.id %}" autocomplete="off">
-                            {% csrf_token %}
-                            <div style="position: relative;">
-                                <input type="text" name="username" id="collabUsernameInput" placeholder="Search username..." required
-                                    style="width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 0.9rem; outline: none; box-sizing: border-box;">
-                                <div id="usernameSuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; max-height: 220px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
-                            </div>
-                            <button type="submit" class="btn btn--sub" style="width: 100%; margin-top: 8px; font-size: 0.85rem; padding: 8px 12px; cursor: pointer;">
-                                Send Invite
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                {% endif %}
-
-            </div>
-            <div class="column column--2of3">
-                <img class="singleProject__preview" src="{{ project.imageURL }}" alt="portfolio thumbnail" />
-                <a href="{% url 'user-profile' project.owner.id  %}"
-                    class="singleProject__developer">{{project.owner.name}}</a>
-
-
-                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-                    <h2 class="singleProject__title" style="margin:0;">{{project.title}}</h2>
-                    {% if request.user.is_authenticated and request.user.profile != project.owner %}
-                    <a href="{% url 'bookmark-project' project.id %}"
-                       title="{% if is_bookmarked %}Remove Bookmark{% else %}Bookmark Project{% endif %}"
-                       style="display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:25px; font-size:1rem; font-weight:700; text-decoration:none; transition:all 0.2s; letter-spacing:0.02em;
-                              {% if is_bookmarked %}background:#4a90e2; color:#fff; border:2px solid #4a90e2;{% else %}background:#fff; color:#4a90e2; border:2px solid #4a90e2;{% endif %}">
-                        <i class="{% if is_bookmarked %}fas fa-bookmark{% else %}far fa-bookmark{% endif %}" style="font-size:1.1rem;"></i>
-                        {% if is_bookmarked %}Saved{% else %}Save{% endif %}
-                    </a>
-                    {% endif %}
-                </div>
-
-                <h3 class="singleProject__subtitle">About the Project</h3>
-                <div class="singleProject__info">
-                    {{project.description}}
-                </div>
-                <div class="comments">
-                    <h3 class="singleProject__subtitle">Feedback</h3>
-                    <h5 class="project--rating">
-                        {{project.vote_ratio}}% Positive Feedback ({{project.vote_total}}
-                        Vote{{project.vote_total|pluralize:"s"}})
-                        {% if show_views %}| {{ project.views }} View{{ project.views|pluralize:"s" }}{% endif %}
-                    </h5>
-
-                    {% if request.user.profile.id in project.reviewers %}
-                    <p>You have already submitted your review for this project</p>
-
-                    {% elif request.user.profile == project.owner %}
-                    <p>You cannot review your own work</p>
-
-                    {% elif request.user.is_authenticated %}
-                    <form class="form" action="{% url 'project' project.id %}" method="POST">
-                        {% csrf_token %}
-                        {% for field in form %}
-                        <div class="form__field">
-                            <label for="formInput#textarea">{{field.label}}</label>
-                            {{field}}
-                        </div>
-                        {% endfor %}
-                        <input class="btn btn--sub btn--lg" type="submit" value="Add Review" />
-                    </form>
-                    {% else %}
-                    <a href="{% url 'login' %}?next={{request.path}}">Please login to leave a review</a>
-                    {% endif %}
-
-                    <div class="commentList">
-                        {% for review in project.review_set.all %}
-                        {% if review.body %}
-                        <div class="comment">
-                            <a href="{% url 'user-profile' review.owner.id  %}">
-                                <img class="avatar avatar--md" src="{{review.owner.profile_image.url}}" alt="user" />
-                            </a>
-
-
-                            <div class="comment__details">
-                                <a href="{% url 'user-profile' review.owner.id  %}"
-                                    class="comment__author">{{review.owner.name}}</a>
-                                <p class="comment__info">{{review.body|linebreaksbr}}</p>
-                            </div>
-
-                        </div>
-                        {% endif %}
-                        {% endfor %}
-
-                    </div>
-                </div>
-            </div>
+      <!-- Left: tools, links, collaborators, manage -->
+      <aside class="sp-sidebar">
+        <div class="sp-sidebar__card">
+          <h4 class="sp-sidebar__heading">Tools & Stacks</h4>
+          <div class="sp-tags">
+            {% for tag in project.tags.all %}
+            <span class="sp-tag">{{ tag }}</span>
+            {% endfor %}
+          </div>
         </div>
+
+        {% if project.source_link or project.demo_link %}
+        <div class="sp-sidebar__card">
+          <h4 class="sp-sidebar__heading">Links</h4>
+          <div class="sp-links">
+            {% if project.source_link %}
+            <a class="sp-link" href="{{ project.source_link }}" target="_blank">
+              <i class="fas fa-code"></i> Source Code
+            </a>
+            {% endif %}
+            {% if project.demo_link %}
+            <a class="sp-link" href="{{ project.demo_link }}" target="_blank">
+              <i class="fas fa-external-link-alt"></i> Live Demo
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="sp-sidebar__card">
+          <h4 class="sp-sidebar__heading">Collaborators</h4>
+          {% if project.collaborators.all %}
+          <div class="sp-collabs">
+            {% for collab in project.collaborators.all %}
+            <div class="sp-collab-row">
+              <a href="{% url 'user-profile' collab.id %}" class="sp-collab">
+                <img class="sp-collab__img" src="{{ collab.imageURL }}" alt="{{ collab.name }}" />
+                <span>{{ collab.name }}</span>
+              </a>
+              {% if request.user.is_authenticated and request.user.profile == project.owner %}
+              <form method="POST" action="{% url 'remove-collaborator' project.id collab.id %}" class="sp-collab-remove">
+                {% csrf_token %}
+                <button type="submit" class="sp-collab-remove-btn" title="Remove {{ collab.name }}">
+                  <i class="fas fa-times"></i>
+                </button>
+              </form>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="sp-collab-empty">No collaborators yet.</p>
+          {% endif %}
+
+          {% if request.user.is_authenticated and request.user.profile == project.owner %}
+          <button id="toggleInviteBtn" class="sp-btn sp-btn--outline sp-btn--full sp-collab-add-btn">
+            <i class="fas fa-plus"></i> Add Collaborator
+          </button>
+          <div id="inviteFormBox" class="sp-invite-form" style="display:none;">
+            <form method="POST" action="{% url 'invite-collaborator' project.id %}" autocomplete="off">
+              {% csrf_token %}
+              <div class="sp-invite-input-wrap">
+                <input type="text" name="username" id="collabUsernameInput" placeholder="Search username..." required class="sp-invite-input" />
+                <div id="usernameSuggestions" class="sp-suggestions"></div>
+              </div>
+              <button type="submit" class="sp-btn sp-btn--primary sp-btn--full">Send Invite</button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+      </aside>
+
+      <!-- Right: image, owner, save, about -->
+      <div class="sp-right">
+        <div class="sp-hero">
+          <img class="sp-hero__img" src="{{ project.imageURL }}" alt="{{ project.title }}" />
+        </div>
+
+        <div class="sp-header__top">
+          <a href="{% url 'user-profile' project.owner.id %}" class="sp-hero__author">
+            <img class="sp-hero__avatar" src="{{ project.owner.imageURL }}" alt="{{ project.owner.name }}" />
+            <span>{{ project.owner.name }}</span>
+          </a>
+          {% if request.user.is_authenticated and request.user.profile != project.owner %}
+          <a href="{% url 'bookmark-project' project.id %}" class="sp-save-btn {% if is_bookmarked %}sp-save-btn--active{% endif %}">
+            <i class="{% if is_bookmarked %}fas{% else %}far{% endif %} fa-bookmark"></i>
+            {% if is_bookmarked %}Saved{% else %}Save{% endif %}
+          </a>
+          {% endif %}
+        </div>
+
+        <h1 class="sp-title">{{ project.title }}</h1>
+
+        <div class="sp-stats">
+          <span class="sp-stat"><strong>{{ project.vote_ratio }}%</strong> positive</span>
+          <span class="sp-stat-dot"></span>
+          <span class="sp-stat">{{ project.vote_total }} vote{{ project.vote_total|pluralize:"s" }}</span>
+          {% if show_views %}
+          <span class="sp-stat-dot"></span>
+          <span class="sp-stat">{{ project.views }} view{{ project.views|pluralize:"s" }}</span>
+          {% endif %}
+        </div>
+
+        <section class="sp-about">
+          <h3 class="sp-section__title">About the Project</h3>
+          <div class="sp-description">{{ project.description|linebreaksbr }}</div>
+        </section>
+
+        <section class="sp-section sp-reviews">
+          <h3 class="sp-section__title">Feedback</h3>
+
+          <!-- Vote buttons -->
+          {% if request.user.is_authenticated and request.user.profile != project.owner %}
+          <div class="sp-vote-row">
+            <form method="POST" action="{% url 'vote-project' project.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="value" value="up" />
+              <button type="submit" class="sp-vote-btn sp-vote-btn--up {% if user_vote == 'up' %}sp-vote-btn--selected{% endif %}">
+                <i class="fas fa-thumbs-up"></i> Upvote
+              </button>
+            </form>
+            <form method="POST" action="{% url 'vote-project' project.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="value" value="down" />
+              <button type="submit" class="sp-vote-btn sp-vote-btn--down {% if user_vote == 'down' %}sp-vote-btn--selected{% endif %}">
+                <i class="fas fa-thumbs-down"></i> Downvote
+              </button>
+            </form>
+          </div>
+          {% elif not request.user.is_authenticated %}
+          <p class="sp-notice"><a href="{% url 'login' %}?next={{ request.path }}" class="sp-notice--link">Log in</a> to vote and comment.</p>
+          {% endif %}
+
+          <!-- Comment form -->
+          {% if request.user.is_authenticated %}
+          <form class="sp-comment-form" method="POST" action="{% url 'comment-project' project.id %}">
+            {% csrf_token %}
+            <div class="sp-comment-input">
+              <textarea name="body" rows="2" placeholder="Write a comment..."></textarea>
+            </div>
+            <button type="submit" class="sp-btn sp-btn--primary">Comment</button>
+          </form>
+          {% endif %}
+
+          <!-- Comments list -->
+          <div class="sp-comment-list">
+            {% for comment in comments %}
+            <div class="sp-comment">
+              <a href="{% url 'user-profile' comment.owner.id %}">
+                <img class="sp-comment__avatar" src="{{ comment.owner.profile_image.url }}" alt="{{ comment.owner.name }}" />
+              </a>
+              <div class="sp-comment__body">
+                <a href="{% url 'user-profile' comment.owner.id %}" class="sp-comment__name">{{ comment.owner.name }}</a>
+                <p class="sp-comment__text">{{ comment.body|linebreaksbr }}</p>
+              </div>
+              {% if request.user.is_authenticated and request.user.profile == project.owner %}
+              <form method="POST" action="{% url 'delete-comment' comment.id %}" class="sp-comment-delete">
+                {% csrf_token %}
+                <button type="submit" class="sp-comment-delete-btn" title="Delete comment">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </form>
+              {% endif %}
+            </div>
+            {% empty %}
+            <p class="sp-notice">No comments yet.</p>
+            {% endfor %}
+          </div>
+        </section>
+      </div>
+
     </div>
-    </div>
+
+  </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const toggleBtn = document.getElementById('toggleInviteBtn');
+  const inviteBox = document.getElementById('inviteFormBox');
+  if (toggleBtn && inviteBox) {
+    toggleBtn.addEventListener('click', function() {
+      inviteBox.style.display = inviteBox.style.display === 'none' ? 'block' : 'none';
+    });
+  }
+});
+</script>
 
 {% if request.user.is_authenticated and request.user.profile == project.owner %}
 <script>
@@ -164,15 +218,13 @@
                     sugBox.innerHTML = '';
                     users.forEach(u => {
                         const item = document.createElement('div');
-                        item.style.cssText = 'display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; transition:background 0.15s; border-bottom:1px solid #f0f0f0;';
+                        item.className = 'sp-suggestion-item';
                         item.innerHTML = `
-                            <img src="${u.image}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                            <img src="${u.image}" alt="${u.name}" />
                             <div>
-                                <div style="font-weight:600; font-size:0.9rem; color:#333;">${u.name}</div>
-                                <div style="font-size:0.8rem; color:#888;">@${u.username}</div>
+                                <div class="sp-suggestion-name">${u.name}</div>
+                                <div class="sp-suggestion-handle">@${u.username}</div>
                             </div>`;
-                        item.addEventListener('mouseenter', () => item.style.background = '#f5f5f5');
-                        item.addEventListener('mouseleave', () => item.style.background = '#fff');
                         item.addEventListener('mousedown', (e) => {
                             e.preventDefault();
                             input.value = u.username;

@@ -1,74 +1,48 @@
 {% extends 'main.html' %}
+{% load static %}
 {% block content %}
+<link rel="stylesheet" href="{% static 'styles/home.css' %}" />
 
+<main class="home-page">
+  <div class="home-wrapper">
 
-<!-- Main Section -->
-<main class="projects">
-    <section class="hero-section text-center">
-        <div class="container container--narrow">
-            <div class="hero-section__box">
-                <h2>Search for <span>Projects</span></h2>
-            </div>
+    <div class="home-header">
+      <h1 class="home-title">Projects</h1>
+      <form class="home-search" action="{% url 'projects' %}" method="get">
+        <input class="home-search__input" type="text" name="search_query" placeholder="Search projects..." value="{{ search_query }}" />
+        <button type="submit" class="home-search__btn">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
 
-            <div class="hero-section__search">
-                <form id='searchForm' class="form" action="{% url 'projects' %}" method="get">
-                    <div class="form__field">
-                        <label for="formInput#search">Search By Projects </label>
-                        <input class="input input--text" id="formInput#search" type="text" name="search_query"
-                            placeholder="Search by Project Title" value="{{search_query}}" />
-                    </div>
-
-                    <input class="btn btn--sub btn--lg" type="submit" value="Search" />
-                </form>
-            </div>
-        </div>
-    </section>
-    <!-- Search Result: DevList -->
     <section class="projectsList">
-        <div class="container">
-            <div class="grid grid--three">
-
-                {% for project in projects %}
-                <div class="column">
-                    <div class="card project">
-                        <a href="{% url 'project' project.id %}" class="project">
-                            <img class="project__thumbnail" src="{{project.imageURL}}" alt="project thumbnail" />
-                            <div class="card__body">
-                                <h3 class="project__title">{{project.title}}</h3>
-                                <p><a class="project__author" href="{% url 'user-profile' project.owner.id %}">By
-                                        {{project.owner.name}}</a>
-                                </p>
-                                <p class="project--rating">
-                                    <span style="font-weight: bold;">{{project.vote_ratio}}%</span> Positive
-                                    Feedback ({{project.vote_total}}) Vote{{project.vote_total|pluralize:"s"}}
-                                </p>
-                                {% if not request.user.is_authenticated or project.owner != request.user.profile %}
-                                <p class="project--views">
-                                    <small>{{ project.views }} View{{ project.views|pluralize:"s" }}</small>
-                                </p>
-                                {% endif %}
-                                <div class="project__tags">
-                                    {% for tag in project.tags.all %}
-                                    <span class="tag tag--pill tag--main">
-                                        <small>{{tag}}</small>
-                                    </span>
-                                    {% endfor %}
-
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                {% endfor %}
-
-            </div>
+      <div class="grid grid--three">
+        {% for project in projects %}
+        <div class="column">
+          <div class="card project">
+            <a href="{% url 'project' project.id %}" class="project">
+              <img class="project__thumbnail" src="{{ project.imageURL }}" alt="project thumbnail" />
+              <div class="card__body">
+                <h3 class="project__title">{{ project.title }}</h3>
+                <p><a class="project__author" href="{% url 'user-profile' project.owner.id %}">By {{ project.owner.name }}</a></p>
+                <p class="project--views"><small>{{ project.views }} view{{ project.views|pluralize:"s" }}</small></p>
+              </div>
+            </a>
+          </div>
         </div>
+        {% empty %}
+        <div class="home-empty">
+          <h3 class="home-empty__title">No projects found</h3>
+          <p class="home-empty__text">Try a different search or check back later.</p>
+        </div>
+        {% endfor %}
+      </div>
     </section>
+
     {% include 'pagination.html' with queryset=projects custom_range=custom_range %}
 
+  </div>
 </main>
-
-
-
 
 {% endblock %}

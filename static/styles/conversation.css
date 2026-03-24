@@ -145,9 +145,10 @@
 }
 
 .conv-bubble--own {
-  background: var(--color-sub);
-  color: #fff;
+  background: var(--color-white);
+  color: var(--color-sub);
   border-radius: 1.4rem 1.4rem 0.3rem 1.4rem;
+  border: 1px solid var(--color-light);
 }
 
 .conv-bubble--other {
@@ -168,7 +169,7 @@
 }
 
 .conv-bubble--own .conv-bubble-time {
-  opacity: 0.5;
+  color: var(--color-gray);
 }
 
 .conv-bubble--other .conv-bubble-time {

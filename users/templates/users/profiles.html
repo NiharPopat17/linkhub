@@ -1,65 +1,55 @@
 {% extends 'main.html' %}
+{% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'styles/home.css' %}" />
+<link rel="stylesheet" href="{% static 'styles/developers.css' %}" />
 
-<!-- Main Section -->
-<main class="home">
-    <section class="hero-section text-center">
-        <div class="container container--narrow">
-            <div class="hero-section__box">
-                <h2>CONNECT WITH <span>DEVELOPERS</span></h2>
+<main class="home-page">
+  <div class="home-wrapper">
+
+    <div class="home-header">
+      <h1 class="home-title">Developers</h1>
+      <form class="home-search" action="{% url 'profiles' %}" method="get">
+        <input class="home-search__input" type="text" name="search_query" placeholder="Search developers..." value="{{ search_query }}" />
+        <button type="submit" class="home-search__btn">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
+
+    <section class="dev-list">
+      <div class="dev-grid">
+        {% for profile in profiles %}
+        <a href="{% url 'user-profile' profile.id %}" class="dev-card">
+          <div class="dev-card__top">
+            <img class="dev-card__avatar" src="{{ profile.imageURL }}" alt="{{ profile.name }}" />
+            <div class="dev-card__meta">
+              <h3 class="dev-card__name">{{ profile.name|default:profile.username }}</h3>
+              {% if profile.short_intro %}
+              <p class="dev-card__intro">{{ profile.short_intro|truncatechars:60 }}</p>
+              {% endif %}
             </div>
-
-            <div class="hero-section__search">
-
-                <form id="searchForm" class="form" action="{% url 'profiles' %}" method="get">
-                    <div class="form__field">
-                        <label for="formInput#search">Search Developers </label>
-                        <input class="input input--text" id="formInput#search" type="text" name="search_query"
-                            value="{{search_query}}" placeholder="Search by developer name" />
-                    </div>
-
-                    <input class="btn btn--sub btn--lg" type="submit" value="Search" />
-                </form>
-
-            </div>
+          </div>
+          <p class="dev-card__bio">{% if profile.bio %}{{ profile.bio|truncatechars:100 }}{% else %}&nbsp;{% endif %}</p>
+          <div class="dev-card__skills">
+            {% for skill in profile.skill_set.all|slice:":3" %}
+            <span class="dev-card__tag">{{ skill }}</span>
+            {% endfor %}
+          </div>
+        </a>
+        {% empty %}
+        <div class="home-empty">
+          <h3 class="home-empty__title">No developers found</h3>
+          <p class="home-empty__text">Try a different search.</p>
         </div>
+        {% endfor %}
+      </div>
+
+      {% include 'pagination.html' with queryset=profiles custom_range=custom_range %}
     </section>
-    <!-- Search Result: DevList -->
-    <section class="devlist">
-        <div class="container">
-            <div class="grid grid--three">
 
-                {% for profile in profiles %}
-                <div class="column card">
-                    <div class="dev">
-                        <a href="{% url 'user-profile' profile.id %}" class="card__body">
-                        <div class="dev__profile">
-                            <img class="avatar avatar--md" src="{{ profile.imageURL }}" alt="image" />
-                            <div class="dev__meta">
-                                <h3>{{profile.name|default:profile.username}}</h3>
-                                <h5>{{profile.short_intro|slice:"60"}}</h5>
-                            </div>
-                        </div>
-                        <p class="dev__info">{{profile.bio|slice:"150"}}</p>
-                        <div class="dev__skills">
-
-                            {% for skill in profile.skill_set.all|slice:"5" %}
-                            <span class="tag tag--pill tag--main">
-                                <small>{{skill}}</small>
-                            </span>
-                            {% endfor %}
-
-                        </div>
-                        </a>
-                    </div>
-                </div>
-                {% endfor %}
-
-            </div>
-        </div>
-        {% include 'pagination.html' with queryset=profiles custom_range=custom_range %}
-    </section>
+  </div>
 </main>
 
 {% endblock content %}
