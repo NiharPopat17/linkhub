@@ -1,3 +1,4 @@
+import os
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth.models import User
@@ -5,14 +6,27 @@ from .models import Profile, Skill
 from django.core.mail import send_mail
 from django.conf import settings
 
+def _get_default_image_data():
+    """Read the default avatar PNG and return (bytes, content_type)."""
+    path = os.path.join(settings.BASE_DIR, 'static', 'images', 'user-default.png')
+    try:
+        with open(path, 'rb') as f:
+            return f.read(), 'image/png'
+    except FileNotFoundError:
+        return None, None
+
+
 def createProfile(sender, instance, created, **kwargs):
     if created:
         user = instance
+        img_data, img_ct = _get_default_image_data()
         profile = Profile.objects.create(
             user=user,
             username=user.username,
             name=user.first_name,
             email=user.email,
+            profile_image=img_data,
+            profile_image_content_type=img_ct,
         )
 
         subject = 'Welcome to LinkHub'

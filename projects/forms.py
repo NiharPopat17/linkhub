@@ -3,9 +3,11 @@ from .models import Project, Review
 from django import forms
 
 class ProjectForm(ModelForm):
+    featured_image = forms.ImageField(required=False, label='Featured Image')
+
     class Meta:
         model = Project
-        fields = ['title', 'featured_image','description', 'demo_link', 'source_link']
+        fields = ['title', 'description', 'demo_link', 'source_link']
 
         widgets = {
             'tags': forms.CheckboxSelectMultiple(),

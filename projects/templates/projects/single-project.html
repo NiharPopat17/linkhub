@@ -158,7 +158,7 @@
             {% for comment in comments %}
             <div class="sp-comment">
               <a href="{% url 'user-profile' comment.owner.id %}">
-                <img class="sp-comment__avatar" src="{{ comment.owner.profile_image.url }}" alt="{{ comment.owner.name }}" />
+                <img class="sp-comment__avatar" src="{{ comment.owner.imageURL }}" alt="{{ comment.owner.name }}" />
               </a>
               <div class="sp-comment__body">
                 <a href="{% url 'user-profile' comment.owner.id %}" class="sp-comment__name">{{ comment.owner.name }}</a>

@@ -4,6 +4,7 @@ import uuid
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.templatetags.static import static
+from django.urls import reverse
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -12,7 +13,8 @@ class Profile(models.Model):
     username = models.CharField(max_length=200, blank=True, null=True)
     short_intro = models.CharField(max_length=200, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
-    profile_image = models.ImageField(null=True, blank=True, upload_to='profiles/', default="profiles/user-default.png")
+    profile_image = models.BinaryField(null=True, blank=True, editable=True)
+    profile_image_content_type = models.CharField(max_length=50, null=True, blank=True)
     social_github = models.CharField(max_length=200, blank=True, null=True)
     social_twitter = models.CharField(max_length=200, blank=True, null=True)
     social_linkedin = models.CharField(max_length=200, blank=True, null=True)
@@ -30,11 +32,7 @@ class Profile(models.Model):
 
     @property
     def imageURL(self):
-        try:
-            url = self.profile_image.url
-        except Exception:
-            url = static('images/user-default.png')
-        return url
+        return reverse('serve-profile-image', args=[str(self.id)])
    
     
     class Meta:
@@ -43,7 +41,6 @@ class Profile(models.Model):
 class Skill(models.Model):
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=200, blank=True, null=True)
-    description = models.TextField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     id = models.UUIDField(default=uuid.uuid4, unique=True,
                           primary_key=True, editable=False)

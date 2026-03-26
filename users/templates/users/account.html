@@ -94,7 +94,6 @@
           <div class="acct-item">
             <div class="acct-item-body">
               <span class="acct-skill-tag">{{ skill.name }}</span>
-              {% if skill.description %}<p class="acct-item-desc">{{ skill.description }}</p>{% endif %}
             </div>
             <div class="acct-item-actions">
               <a class="acct-btn acct-btn--edit" href="{% url 'update-skill' skill.id %}">Edit</a>

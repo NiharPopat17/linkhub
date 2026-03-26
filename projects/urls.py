@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.projects, name="projects"),
     path('for-you/', views.forYou, name="for-you"),
     path('saved/', views.savedProjects, name="saved-projects"),
+    path('project-image/<str:pk>/', views.serve_project_image, name="serve-project-image"),
     path('project/<str:pk>/', views.project, name="project"),
     path('project/<str:pk>/vote/', views.voteProject, name='vote-project'),
     path('project/<str:pk>/comment/', views.commentProject, name='comment-project'),

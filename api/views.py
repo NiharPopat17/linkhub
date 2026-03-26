@@ -52,6 +52,7 @@ def projectVote(request, pk):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@authentication_classes([SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def predictNextWord(request):
     text = request.data.get('text', '')

@@ -1,4 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
+from django.http import HttpResponse
 from django.contrib.auth import authenticate,login,logout
 from .models import Profile,Skill,Message,Conversation
 from django.contrib.auth.decorators import login_required
@@ -83,7 +84,7 @@ def profiles(request):
                 followers_count=Count('followers')
             ).order_by('-followers_count')
 
-    custom_range, profiles = paginateProfiles(request, profiles, 6)
+    custom_range, profiles = paginateProfiles(request, profiles, 9)
     context = {
         'profiles': profiles,
         'search_query': search_query,
@@ -108,8 +109,7 @@ def userProfile(request,pk):
             request.session['viewed_profiles'] = viewed_profiles
         profile.refresh_from_db()
     show_views = not is_own_profile
-    topSkills = profile.skill_set.exclude(description__exact="")
-    otherSkills = profile.skill_set.filter(description="")
+    skills = profile.skill_set.order_by('name').distinct('name')
 
     is_following = False
     if request.user.is_authenticated:
@@ -117,8 +117,7 @@ def userProfile(request,pk):
 
     context = {
         'profile': profile,
-        'topSkills': topSkills,
-        'otherSkills': otherSkills,
+        'skills': skills,
         'is_following': is_following,
         'show_views': show_views,
     }
@@ -127,7 +126,7 @@ def userProfile(request,pk):
 @login_required(login_url='login')
 def userAccount(request):
     profile = request.user.profile
-    skills = profile.skill_set.all()
+    skills = profile.skill_set.order_by('name').distinct('name')
     projects = profile.project_set.all()
     following_count = profile.following.count()
     pending_invites = profile.received_invites.filter(status='pending').select_related('project', 'sender')
@@ -147,12 +146,48 @@ def editAccount(request):
     profile = request.user.profile
     form = ProfileForm(instance=profile)
     if request.method == 'POST':
-        form = ProfileForm(request.POST,request.FILES,instance=profile)
+        form = ProfileForm(request.POST, instance=profile)
         if form.is_valid():
-            form.save()
+            profile = form.save(commit=False)
+            # Handle profile image upload manually (stored as binary in DB)
+            image_file = request.FILES.get('profile_image')
+            if image_file:
+                profile.profile_image = image_file.read()
+                profile.profile_image_content_type = image_file.content_type
+            profile.save()
             return redirect('account')
     context = {'form': form}
     return render(request, 'users/profile_form.html',context)
+
+
+def _is_valid_image_data(data):
+    """Return True if *data* starts with a recognised image magic signature."""
+    if not data or len(data) < 8:
+        return False
+    return (
+        data[:4] == b'\x89PNG'
+        or data[:3] == b'\xff\xd8\xff'
+        or data[:3] == b'GIF'
+        or (data[:4] == b'RIFF' and data[8:12] == b'WEBP')
+    )
+
+
+def serve_profile_image(request, pk):
+    """Serve a profile image stored as binary data in the database."""
+    profile = get_object_or_404(Profile, id=pk)
+    if profile.profile_image:
+        data = bytes(profile.profile_image)
+        if _is_valid_image_data(data):
+            content_type = profile.profile_image_content_type or 'image/png'
+            return HttpResponse(data, content_type=content_type)
+    import os
+    from django.conf import settings
+    default_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'user-default.png')
+    try:
+        with open(default_path, 'rb') as f:
+            return HttpResponse(f.read(), content_type='image/png')
+    except FileNotFoundError:
+        return HttpResponse(status=404)
 
 @login_required(login_url='login')
 def createSkill(request):
@@ -165,7 +200,7 @@ def createSkill(request):
             skill.owner = profile
             skill.save()
             messages.success(request, 'Skill was added successfully!')
-            return redirect('account')  
+            return redirect('account')
     context = {'form': form, 'is_update': False}
     return render(request, 'users/skill_form.html', context)
 

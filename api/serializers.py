@@ -4,9 +4,14 @@ from users.models import Profile
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Profile
-        fields = '__all__'  
+        exclude = ['profile_image']
+
+    def get_image_url(self, obj):
+        return obj.imageURL
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,13 +27,18 @@ class ProjectSerializer(serializers.ModelSerializer):
     owner = ProfileSerializer(many=False)
     tags = TagSerializer(many=True)
     reviews = serializers.SerializerMethodField(method_name='get_reviews')
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Project
-        fields = '__all__'  
+        exclude = ['featured_image']
 
     def get_reviews(self, obj):
         reviews = obj.review_set.all()
         serializer = ReviewSerializer(reviews, many=True)
         return serializer.data
+
+    def get_image_url(self, obj):
+        return obj.imageURL
 
 

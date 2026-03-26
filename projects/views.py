@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.db.models import Q, F
@@ -18,7 +20,7 @@ def projects(request):
         else:
             projects = projects.order_by('-vote_ratio', '-vote_total')
 
-    custom_range, projects = paginateProjects(request, projects, 6)
+    custom_range, projects = paginateProjects(request, projects, 9)
     context = {
         'projects': projects,
         'search_query': search_query,
@@ -57,6 +59,33 @@ def project(request, pk):
         'user_vote': user_vote,
         'comments': comments,
     })
+
+
+def _is_valid_image_data(data):
+    if not data or len(data) < 8:
+        return False
+    return (
+        data[:4] == b'\x89PNG'
+        or data[:3] == b'\xff\xd8\xff'
+        or data[:3] == b'GIF'
+        or (data[:4] == b'RIFF' and data[8:12] == b'WEBP')
+    )
+
+
+def serve_project_image(request, pk):
+    """Serve a project image stored as binary data in the database."""
+    project = get_object_or_404(Project, id=pk)
+    if project.featured_image:
+        data = bytes(project.featured_image)
+        if _is_valid_image_data(data):
+            content_type = project.featured_image_content_type or 'image/jpeg'
+            return HttpResponse(data, content_type=content_type)
+    default_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'default.jpg')
+    try:
+        with open(default_path, 'rb') as f:
+            return HttpResponse(f.read(), content_type='image/jpeg')
+    except FileNotFoundError:
+        return HttpResponse(status=404)
 
 
 @login_required(login_url='login')
@@ -140,7 +169,7 @@ def savedProjects(request):
     project_map = {p.id: p for p in Project.objects.filter(id__in=ordered_ids)}
     bookmarks = [project_map[pid] for pid in ordered_ids if pid in project_map]
 
-    custom_range, projects = paginateProjects(request, bookmarks, 6)
+    custom_range, projects = paginateProjects(request, bookmarks, 9)
     context = {
         'projects': projects,
         'custom_range': custom_range,
@@ -154,7 +183,7 @@ def forYou(request):
         projects = get_project_recommendations(request.user.profile, limit=50)
     except Exception:
         projects = []
-    custom_range, projects = paginateProjects(request, projects, 6)
+    custom_range, projects = paginateProjects(request, projects, 9)
     context = {
         'projects': projects,
         'custom_range': custom_range,
@@ -171,6 +200,10 @@ def createProject(request):
         if form.is_valid():
             project = form.save(commit=False)
             project.owner = profile
+            image_file = request.FILES.get('featured_image')
+            if image_file:
+                project.featured_image = image_file.read()
+                project.featured_image_content_type = image_file.content_type
             project.save()
             for tag in newtags:
                 tag, created = Tag.objects.get_or_create(name=tag)
@@ -194,6 +227,10 @@ def updateProject(request, pk):
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
             project = form.save(commit=False)
+            image_file = request.FILES.get('featured_image')
+            if image_file:
+                project.featured_image = image_file.read()
+                project.featured_image_content_type = image_file.content_type
             project.save()
             for tag in newtags:
                 tag, created = Tag.objects.get_or_create(name=tag)

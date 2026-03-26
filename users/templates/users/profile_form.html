@@ -21,19 +21,25 @@
       {% for field in form %}
       <div class="fp-field">
         <label class="fp-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {% if field.html_name == 'profile_image' and form.instance.profile_image %}
-        <div style="margin-bottom: 0.8rem;">
-          <img src="{{ form.instance.imageURL }}" alt="Current profile picture"
-            style="width: 7rem; height: 7rem; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-light);" />
-          <p style="font-size: 1.1rem; color: var(--color-gray); margin-top: 0.4rem;">Choose a new image to replace this one.</p>
-        </div>
-        {% endif %}
         {{ field }}
         {% if field.errors %}
         <span style="color: var(--color-error); font-size: 1.2rem; margin-top: 0.3rem; display: block;">{{ field.errors.0 }}</span>
         {% endif %}
       </div>
       {% endfor %}
+
+      <!-- Profile image upload (stored as binary in DB, not a form field) -->
+      <div class="fp-field">
+        <label class="fp-label">Profile Image</label>
+        {% if form.instance.profile_image %}
+        <div style="margin-bottom: 0.8rem;">
+          <img src="{{ form.instance.imageURL }}" alt="Current profile picture"
+            style="width: 7rem; height: 7rem; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-light);" />
+          <p style="font-size: 1.1rem; color: var(--color-gray); margin-top: 0.4rem;">Choose a new image to replace this one.</p>
+        </div>
+        {% endif %}
+        <input class="input" type="file" name="profile_image" accept="image/*" />
+      </div>
 
       <div class="fp-actions">
         <input class="fp-submit" type="submit" value="Save Changes" />

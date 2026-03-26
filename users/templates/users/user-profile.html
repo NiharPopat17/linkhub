@@ -58,23 +58,14 @@
         {% endif %}
 
         <!-- Skills -->
-        {% if topSkills or otherSkills %}
+        {% if skills %}
         <div class="up-section">
           <h3 class="up-section-title">Skills</h3>
-          {% for skill in topSkills %}
-          <div class="up-skill">
-            <span class="up-skill-name">{{ skill.name }}</span>
-            <p class="up-skill-desc">{{ skill.description }}</p>
-          </div>
-          {% endfor %}
-
-          {% if otherSkills %}
           <div class="up-other-skills">
-            {% for skill in otherSkills %}
+            {% for skill in skills %}
             <span class="up-skill-tag">{{ skill }}</span>
             {% endfor %}
           </div>
-          {% endif %}
         </div>
         {% endif %}
 
